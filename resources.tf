@@ -121,6 +121,21 @@ resource "aws_instance" "perf_cto_client" {
   cpu_core_count         = "${var.instance_cpu_core_count}"
   cpu_threads_per_core   = "${var.instance_cpu_threads_per_core}"
   placement_group        = "${aws_placement_group.perf_cto_pg.name}"
+
+  ebs_block_device {
+    device_name           = "/dev/sdg"
+    volume_size           = 1023
+    volume_type           = "io1"
+    iops                  = 3000
+    encrypted             = false
+    delete_on_termination = true
+  }
+
+  # Ansible requires Python to be installed on the remote machine as well as the local machine.
+  provisioner "remote-exec" {
+    inline = ["sudo yum install python -y"]
+  }
+
   tags = {
     Name = "perf-cto-client-${count.index + 1}"
   }
@@ -136,6 +151,21 @@ resource "aws_instance" "perf_cto_server" {
   cpu_core_count         = "${var.instance_cpu_core_count}"
   cpu_threads_per_core   = "${var.instance_cpu_threads_per_core}"
   placement_group        = "${aws_placement_group.perf_cto_pg.name}"
+  
+  ebs_block_device {
+    device_name           = "/dev/sdg"
+    volume_size           = 1023
+    volume_type           = "io1"
+    iops                  = 3000
+    encrypted             = false
+    delete_on_termination = true
+  }
+
+  # Ansible requires Python to be installed on the remote machine as well as the local machine.
+  provisioner "remote-exec" {
+    inline = ["sudo yum install python -y"]
+  }
+
   tags = {
     Name = "perf-cto-server-${count.index + 1}"
   }
