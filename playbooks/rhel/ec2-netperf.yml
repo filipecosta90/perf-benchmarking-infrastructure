@@ -1,0 +1,35 @@
+---    
+- name: Install netperf
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+ 
+  vars:
+    tmpdir: /tmp
+    installdir: /opt/netperf
+  tasks:
+  - name: yum install
+    yum: name={{item}} state=latest
+    with_items:
+      - git
+      - gcc
+  - name: ftp download netperf
+    get_url: url=https://github.com/HewlettPackard/netperf/archive/netperf-2.7.0.tar.gz dest={{tmpdir}}/netperf-2.7.0.tar.gz mode=0440
+  - name: Create netperf-2.7.0 directory if it does not exist
+    file: path={{tmpdir}}/netperf-2.7.0 state=directory  mode='0755'
+  - name: Create install directory if it does not exist
+    file: path={{installdir}} state=directory  mode='0755'
+  - name: unarchive
+    unarchive: src={{tmpdir}}/netperf-2.7.0.tar.gz dest={{tmpdir}} remote_src=yes list_files=yes
+  - name: configure
+    command: ./configure chdir={{tmpdir}}/netperf-netperf-2.7.0/
+  - name: make
+    command: make chdir={{tmpdir}}/netperf-netperf-2.7.0/
+  - name: install -> {{installdir}}
+    command: make install chdir={{tmpdir}}/netperf-netperf-2.7.0/
+
+
+    

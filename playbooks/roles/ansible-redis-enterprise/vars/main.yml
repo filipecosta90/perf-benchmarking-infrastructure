@@ -1,0 +1,42 @@
+---
+# This is the vars file for Redis Enterprise.
+
+# Version
+re_file_version: '{{ re_version }}-{{ re_version_build }}'
+
+# FQDN of the cluster is clustername and domain
+re_cluster_name_fqdn: '{{ re_cluster_name }}.{{ re_domain_name }}'
+
+# Endpoints
+api_endpoint_port: '9443'
+api_endpoint: 'v1'
+api_host: 'localhost'
+api_bootstrap_endpoint: '{{ api_endpoint }}/bootstrap'
+api_nodes_endpoint: '{{ api_endpoint}}/nodes'
+api_action_create_cl: 'create_cluster'
+api_action_join_cl: 'join_cluster'
+api_license_endpoint: '{{ api_endpoint }}/license'
+api_createdb_endpoint: '{{ api_endpoint}}/bdbs'
+
+api_url_create_cl: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_bootstrap_endpoint }}/{{ api_action_create_cl }}'
+api_url_join_cl: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_bootstrap_endpoint }}/{{ api_action_join_cl }}'
+api_url_createdb: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_createdb_endpoint }}'
+api_url_nodes: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_nodes_endpoint }}'
+api_url_check_bootstrap: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_bootstrap_endpoint }}'
+api_license_url: 'https://{{ api_host }}:{{ api_endpoint_port }}/{{ api_license_endpoint }}'
+
+# Directories
+re_home_dir: '/opt/redislabs'
+re_tmp_dir: 'redislabs_{{ re_file_version }}'
+re_tmp_path: '/tmp/{{ re_tmp_dir }}'
+
+# Downloads
+re_filename: 'redislabs-{{ re_file_version }}'
+re_filename_xenial: '{{ re_filename }}-xenial-amd64.tar'
+re_filename_trusty: '{{ re_filename }}-trusty-amd64.tar'
+re_filename_rhel6: '{{ re_filename }}-rhel6-x86_64.tar'
+re_filename_rhel7: '{{ re_filename }}-rhel7-x86_64.tar'
+re_url_xenial: 'https://s3.amazonaws.com/{{ re_download_path }}/{{ re_version }}/{{ re_filename_xenial }}'
+re_url_trusty: 'https://s3.amazonaws.com/{{ re_download_path }}/{{ re_version }}/{{ re_filename_trusty }}'
+re_url_rhel6: 'https://s3.amazonaws.com/{{ re_download_path }}/{{ re_version }}/{{ re_filename_rhel6 }}'
+re_url_rhel7: 'https://s3.amazonaws.com/{{ re_download_path }}/{{ re_version }}/{{ re_filename_rhel7 }}'

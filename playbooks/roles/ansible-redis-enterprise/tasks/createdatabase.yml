@@ -1,0 +1,98 @@
+---
+# This task is to create a database(s) and replications on Redis Enterprise via the REST API
+
+- name: Get the external IP of the first node
+  set_fact:
+    ip_ext_master: "{{ groups['re_master'][0] }}"
+    ip_ext_node: "{{ groups['re_master'][0] }}"
+  run_once: True
+
+# Create databases
+- name: Creating database via REST API
+  uri:
+    url: "{{ api_url_createdb }}"
+    method: POST
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','create_database.json.j2') }}"
+    body_format: json
+    headers:
+        Content-Type: "application/json"
+  ignore_errors: yes
+  with_items: "{{ re_databases }}"
+  when:
+    - "'re_master' in group_names"
+    - re_databases is defined
+
+# Get all dbs to convert name to uid
+- name: Get all databases
+  uri:
+    url: "{{ api_url_createdb }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: bdbs_response
+  when: "'re_master' in group_names"
+
+- name: Extract needed info from all databses response
+  set_fact:
+    bdbs_info : "{{ bdbs_response.json | json_query(query) }}"
+  vars:
+    query: "[].{uid:uid,name: name, auth:authentication_admin_pass, endpoint: endpoints[0].dns_name, port: port}"
+
+# Loop over the list of replica ofs
+- name: Creating Replica Of's
+  uri:
+    url: "{{ api_url_createdb }}/{{ bdbs_info | json_query(uidQuery) }}"
+    method: PUT
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','enable_replica_of.json.j2') }}"
+    body_format: json
+    headers:
+        Content-Type: "application/json"
+  vars:
+    uidQuery: "[?name=='{{item.to}}'].uid  | [0]"
+    authQuery: "[?name=='{{item.from}}'].auth  | [0]"
+    endpointQuery: "[?name=='{{item.from}}'].endpoint  | [0]"
+    portQuery:  "[?name=='{{item.from}}'].port  | [0]"
+  with_items: "{{ re_replications_internal }}"
+  when:
+    - "'re_master' in group_names"
+    - re_replications_internal is defined
+
+# Loop over the list of replica ofs external
+- name: Creating Replica Of's external
+  uri:
+    url: "{{ api_url_createdb }}/{{ bdbs_info | json_query(uidQuery) }}"
+    method: PUT
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','enable_replica_of_external.json.j2') }}"
+    body_format: json
+    headers:
+        Content-Type: "application/json"
+  vars:
+    uidQuery: "[?name=='{{item.to}}'].uid  | [0]"
+  with_items: "{{ re_replications_external }}"
+  when:
+    - "'re_master' in group_names"
+    - re_replications_external is defined

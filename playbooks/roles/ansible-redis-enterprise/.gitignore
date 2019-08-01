@@ -1,0 +1,12 @@
+#Ansible
+*.retry
+*.ini
+
+#OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+
+#Vagrant
+.vagrant
+*.log

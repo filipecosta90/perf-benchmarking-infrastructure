@@ -1,0 +1,25 @@
+---
+# This task is to update the license of RedisLab Enterprise via the REST API
+
+- name: Get the external IP of the first node
+  set_fact:
+    ip_ext_master: "{{ groups['re_master'][0] }}"
+    ip_ext_node: "{{ groups['re_master'][0] }}"
+  run_once: True
+
+- name: Update the license of the Redis Enterprise Cluster via REST API
+  uri:
+    url: "{{ api_license_url }}"
+    method: PUT
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','license.json.j2') }}"
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+  ignore_errors: no
+  when: "'re_master' in group_names"

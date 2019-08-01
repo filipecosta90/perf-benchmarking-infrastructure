@@ -32,6 +32,11 @@ variable "instance_type" {
   default     = "c5n.18xlarge"
 }
 
+variable "instance_type_5m" {
+  description = "type for aws EC2 instance"
+  default     = "c5.18xlarge"
+}
+
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
   default     = 36
@@ -43,9 +48,16 @@ variable "instance_cpu_threads_per_core" {
 }
 
 
+variable "instance_cpu_threads_per_core_hyperthreading" {
+  description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"
+  default     = 2
+}
+
+
+
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"
-  default     = 9
+  default     = 3
 }
 
 
@@ -58,3 +70,22 @@ variable "environment_tag" {
   description = "Environment tag"
   default     = "performance-cto"
 }
+
+variable "private_key" {
+ description = "private key"
+  default     = "./../../pems/performance-cto-us-east-2.pem"
+}
+
+
+variable "public_key" {
+   description = "public key"
+  default     = "./../../pems/performance-cto-us-east-2.pub"
+}
+
+
+variable "key_name" {
+   description = "key name"
+  default     = "performance-cto-us-east-2"
+}
+
+

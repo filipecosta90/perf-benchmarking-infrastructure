@@ -1,0 +1,33 @@
+---
+# Main tasks file for Redis Enterprise
+
+  - name: Install Redis Enterprise software.
+    hosts: re_master:re_node:re_quorum_only
+    include: install.yml
+    when: re_run_install
+
+  - name: Rolling Upgrade Redis Enterprise software.
+    hosts: re_master:re_node:re_quorum_only
+    serial: 1
+    include: install.yml
+    when: re_run_rollingupgrade
+
+  - name: Boostrapping Redis Enterprise Cluster via REST API.
+    hosts: re_master:re_node:re_quorum_only
+    include: bootstrap.yml
+    when: re_run_bootstrap
+
+  - name: Creating Databases in Redis Enterprise cluster.
+    hosts: re_master:re_node:re_quorum_only
+    include: createdatabase.yml
+    when: re_run_createdatabase
+
+  - name: Update Redis Enterprise License.
+    hosts: re_master:re_node:re_quorum_only
+    include: updatelicense.yml
+    when: re_run_updatelicense
+
+  - name: Uninstall Redis Enterprise.
+    hosts: re_master:re_node:re_quorum_only
+    include: uninstall.yml
+    when: re_run_uninstall

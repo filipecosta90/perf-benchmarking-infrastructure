@@ -1,0 +1,35 @@
+---
+
+# This is here for installing python on ubuntu xenial, since it's not default.
+- hosts: re_master:re_node:re_quorum_only
+  gather_facts: False
+  tasks:
+  - name: Install python2 for Ansible
+    raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python-minimal python-simplejson)"
+    register: output
+    changed_when: output.stdout != ""
+    become: yes
+
+# The actual role
+- hosts: re_master:re_node:re_quorum_only
+  gather_facts: True
+  vars:
+    - re_databases:
+      - db_name: 'test-db'
+        db_password: 'l33t'
+        db_memory_size: 100000000
+        db_type: 'redis'
+        db_replication: 'false'
+        db_sharding: 'false'
+        db_shards_count: 1
+        db_version: '4'
+        db_oss_cluster: 'false'
+        db_proxy_policy: 'single'
+        db_shards_placement: 'dense'
+        db_redis_port: 12000
+        db_evict_policy: 'disabled'
+        db_persistence: 'aof'
+        db_aof_policy: 'appendfsync-always'
+    - re_run_uninstall: True
+  roles:
+    - ansible-redis-enterprise

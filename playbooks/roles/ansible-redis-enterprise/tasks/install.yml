@@ -1,0 +1,90 @@
+---
+# Install task for Redis Enterprise.
+
+- name: Checking if '{{ re_tmp_path }}' exists
+  stat: path={{ re_tmp_path }}
+  register: re_dir
+
+- name: Create '{{ re_tmp_path }}'
+  file: path={{ re_tmp_path }} state=directory
+  when: re_dir.stat.exists == False
+
+- name: Ubuntu 16.04 - Downloading and Extracting '{{ re_filename_xenial }}'
+  unarchive: src={{ re_url_xenial }} dest={{ re_tmp_path }} remote_src=yes
+  when:
+    - ansible_distribution_release == 'xenial'
+    - re_dir.stat.exists == False
+
+- name: Ubuntu 14.04 - Downloading and Extracting '{{ re_filename_trusty }}'
+  unarchive: src={{ re_url_trusty }} dest={{ re_tmp_path }} remote_src=yes
+  when:
+    - ansible_distribution_release == 'trusty'
+    - re_dir.stat.exists == False
+
+- name: Install LSB version for knowing the RHEL major release
+  yum: name=redhat-lsb-core state=present
+  become: yes
+  when:
+    - ansible_os_family == 'RedHat'
+    - re_dir.stat.exists == False
+
+- name: do facts module to get latest information
+  setup:
+  when:
+    - ansible_os_family == 'RedHat'
+    - re_dir.stat.exists == False
+
+- name: RHEL 6 - Downloading and Extracting '{{ re_filename_rhel6 }}'
+  unarchive: src={{ re_url_rhel6 }} dest={{ re_tmp_path }} remote_src=yes
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_lsb.major_release|int == 6
+    - re_dir.stat.exists == False
+
+- name: RHEL 7 - Downloading and Extracting '{{ re_filename_rhel7 }}'
+  unarchive: src={{ re_url_rhel7 }} dest={{ re_tmp_path }} remote_src=yes
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_lsb.major_release|int == 7
+    - re_dir.stat.exists == False
+
+# - name: Gather package facts
+#   package_facts:
+#     manager: auto
+
+- name: Installing Redis Enterprise
+  shell: "{{ re_tmp_path }}/install.sh -y"
+  args:
+    chdir: "{{ re_tmp_path }}"
+  become: yes
+#   when: 'not "redislabs" in ansible_facts.packages'
+
+- name: Setting the Redis Enterprise Persistent folder permissions
+  file:
+    path={{ re_persistent_path }}
+    owner='redislabs'
+    group='redislabs'
+    mode=755
+  become: yes
+
+- name: Setting the Redis Enterprise Emphemeral folder permissions
+  file:
+    path={{ re_ephemeral_path }}
+    owner='redislabs'
+    group='redislabs'
+    mode=755
+  become: yes
+
+- name: Running Prepare flash script
+  shell: "/opt/redislabs/sbin/prepare_flash.sh"
+  become: yes
+  when: re_flash_enabled
+
+- name: Setting the Redis Enterprise Flash folder permissions
+  file:
+    path={{ re_flash_path }}
+    owner='redislabs'
+    group='redislabs'
+    mode=755
+  become: yes
+  when: re_flash_enabled

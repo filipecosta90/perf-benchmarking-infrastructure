@@ -1,0 +1,30 @@
+---
+    
+- name: Configure EC2 instance
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: Update the machine
+    command: yum update -y
+    
+  - name: Installing essentials
+    become: yes
+    command: yum install yum-utils wget -y
+  
+  - name: Installing git
+    become: yes
+    command: yum install git -y
+
+  - name: Installing autogen
+    become: yes
+    command: yum install autogen -y
+
+  - name: Installing gcc
+    become: yes
+    command: yum install gcc -y
+      
+    

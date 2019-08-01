@@ -1,0 +1,190 @@
+---
+# This task is to setup/config Redis Enterprise via the REST API.
+
+# Internal/external Ip for all nodes
+- name: Get the external IP of each node
+  set_fact:
+    ip_ext_node: "{{ inventory_hostname }}"
+- name: Get the internal IP of each node
+  set_fact:
+    ip_int_node: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+#####################
+# Bootstrap Cluster #
+#####################
+
+# Check if master is already bootstrapped (for idempotence).
+- name: Check Cluster creation status (before)
+  uri:
+    url: "{{ api_url_check_bootstrap }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: cluster_creation_status
+  when: "'re_master' in group_names"
+
+- name: Register Cluster creation status
+  set_fact:
+    cluster_created: "{{ cluster_creation_status is defined and cluster_creation_status.json.bootstrap_status.state == 'completed' }}"
+  when: "'re_master' in group_names"
+
+# Create cluster only on first node and verify bootstrap is completed
+- name: Creating Cluster for RedisLabs via REST API
+  uri:
+    url: "{{ api_url_create_cl }}"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','create_cluster.json.j2') }}"
+    body_format: json
+    headers:
+        Content-Type: "application/json"
+  when:
+    - "'re_master' in group_names"
+    - not cluster_created
+
+# Pause is needed since the bootstrap introdcues a reboot of the CCS.
+- pause: seconds=5
+
+# Loop till bootstrap is finalised
+- name: Check Cluster creation status (after)
+  uri:
+    url: "{{ api_url_check_bootstrap }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: cluster_creation_status
+  until: cluster_creation_status.json.bootstrap_status.state == 'completed'
+  delay: 5
+  retries: 10
+  when:
+    - "'re_master' in group_names"
+    - not cluster_created
+
+################
+# Join Cluster #
+################
+
+# Check if nodes are already bootstrapped (for idempotence).
+- name: Check Cluster Node Joining status (before)
+  uri:
+    url: "{{ api_url_check_bootstrap }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: cluster_join_status
+  when: "not 're_master' in group_names"
+
+- name: Register Cluster join status
+  set_fact:
+    cluster_joined: "{{ cluster_join_status is defined and cluster_join_status.json.bootstrap_status.state == 'completed' }}"
+  when: "not 're_master' in group_names"
+
+# We need the internal IP for joining the cluster
+- name: Get the internal IP of the first node
+  set_fact:
+    ip_int_master: "{{ hostvars[groups['re_master'][0]]['ansible_default_ipv4']['address'] }}"
+  run_once: True
+  when:
+    - not re_lookup_nodes_dns
+
+- name: Get the internal IP of the first node via DNS
+  set_fact:
+    ip_int_master: "{{ lookup('dig', lookup('vars', 're_cluster_name_fqdn')) }}"
+  run_once: True
+  when:
+    - re_lookup_nodes_dns
+
+# Let the other nodes join but verify bootstrap status is completed
+- name: Join Cluster for RedisLabs via REST API
+  uri:
+    url: "{{ api_url_join_cl }}"
+    method: POST
+    return_content: yes
+    validate_certs: no
+    follow_redirects: all
+    body: "{{ lookup('template','join_cluster.json.j2') }}"
+    body_format: json
+    headers:
+        Content-Type: "application/json"
+  when:
+    - "not 're_master' in group_names"
+    - not cluster_joined
+
+# Pause is needed since the bootstrap introdcues a reboot of the CCS.
+- pause: seconds=5
+
+# Loop till bootstrap is finalised
+- name: Check Cluster Node Joining status (after)
+  uri:
+    url: "{{ api_url_check_bootstrap }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: cluster_creation_status
+  until: cluster_creation_status.json.bootstrap_status.state == 'completed'
+  delay: 5
+  retries: 10
+  when:
+    - "not 're_master' in group_names"
+    - not cluster_joined
+
+###############
+# Quorum Only #
+###############
+
+# Get nodes so we can relate 'uid' to 'ip' to execute the quorum_only script
+- name: Get all nodes
+  uri:
+    url: "{{ api_url_nodes }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    user: "{{ re_username }}"
+    password: "{{ re_password }}"
+    force_basic_auth: yes
+    follow_redirects: all
+    headers:
+        Content-Type: "application/json"
+  register: nodes_response
+  run_once: True
+
+- name: Extract needed info from all databses response
+  set_fact:
+    nodes_info : "{{ nodes_response.json | json_query(query) }}"
+  vars:
+    query: "[].{uid:uid, addr: addr}"
+  run_once: True
+
+# Set Quorum nodes
+- name: Set Quorum nodes
+  shell: "{{ re_home_dir }}/bin/rladmin tune node {{ nodes_info | json_query(uidQuery) }} quorum_only enabled"
+  become: yes
+  vars:
+    uidQuery: "[?addr=='{{ip_int_node}}'].uid  | [0]"
+  when: "'re_quorum_only' in group_names"
