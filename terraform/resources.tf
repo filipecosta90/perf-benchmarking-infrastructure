@@ -101,16 +101,16 @@ resource "aws_network_interface" "perf_cto_client_c5n_18xlarge_network_interface
 }
 
 
-resource "aws_network_interface" "perf_cto_server_c5n_18xlarge_network_interface" {
-  count           = "${var.instance_network_interface_plus_count}"
-  subnet_id       = "${aws_subnet.subnet_public.id}"
-  security_groups = ["${aws_security_group.performance_cto_sg.id}"]
+# resource "aws_network_interface" "perf_cto_server_c5n_18xlarge_network_interface" {
+#   count           = "${var.instance_network_interface_plus_count}"
+#   subnet_id       = "${aws_subnet.subnet_public.id}"
+#   security_groups = ["${aws_security_group.performance_cto_sg.id}"]
 
-  attachment {
-    instance     = "${aws_instance.perf_cto_server_c5n_18xlarge[0].id}"
-    device_index = "${count.index + 2}"
-  }
-}
+#   attachment {
+#     instance     = "${aws_instance.perf_cto_server_c5n_18xlarge[0].id}"
+#     device_index = "${count.index + 2}"
+#   }
+# }
 
 # resource "aws_network_interface" "perf_cto_server_c5n_18xlarge_hyperthreading_network_interface" {
 #   count           = "${var.instance_network_interface_plus_count}"
@@ -159,6 +159,10 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     delete_on_termination = true
   }
 
+  tags = {
+    Name = "perf-cto-client-c5n_18xlarge-${count.index + 1}"
+  }
+
   # Ansible requires Python to be installed on the remote machine as well as the local machine.
   provisioner "remote-exec" {
     inline = ["sudo yum install python -y"]
@@ -170,7 +174,12 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     }
   }
 
-
+  ################################################################################
+  # performance related
+  ################################################################################
+  ########
+  # PERF #
+  ########
   provisioner "local-exec" {
     environment = {
       PUBLIC_IP  = "${self.public_ip}"
@@ -178,10 +187,12 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     }
 
     # working_dir = "../playbooks/rhel"
-    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-configure.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-perf.yml -i ${self.public_ip},"
   }
 
-
+  #######
+  # BCC #
+  #######
   provisioner "local-exec" {
     environment = {
       PUBLIC_IP  = "${self.public_ip}"
@@ -189,13 +200,62 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     }
 
     # working_dir = "../playbooks/rhel"
-    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-netperf.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-bcc.yml -i ${self.public_ip},"
   }
 
+  
+  #######
+  # PCP #
+  #######
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
 
-  tags = {
-    Name = "perf-cto-client-c5n_18xlarge-${count.index + 1}"
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp.yml -i ${self.public_ip},"
   }
+
+  ###############################################
+  # PCP VECTOR PANDA - System Wide Flame Graphs #
+  ###############################################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
+  }
+
+  #################
+  # EC2 CONFIGURE #
+  #################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-configure.yml -i ${self.public_ip},"
+  }
+
+  ###########
+  # NETPERF #
+  ###########
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-netperf.yml -i ${self.public_ip},"
+  }
+
 }
 
 resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
@@ -218,18 +278,27 @@ resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
     delete_on_termination = true
   }
 
-  # Ansible requires Python to be installed on the remote machine as well as the local machine.
+  tags = {
+    Name = "perf-cto-server-c5n_18xlarge-${count.index + 1}"
+  }
+
+# Ansible requires Python to be installed on the remote machine as well as the local machine.
   provisioner "remote-exec" {
     inline = ["sudo yum install python -y"]
-
     connection {
       host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
       type        = "ssh"               # in this case, `self` is the resource (the server).
       user        = "ec2-user"
       private_key = "${file(var.private_key)}"
     }
-
   }
+
+  ################################################################################
+  # performance related
+  ################################################################################
+  ########
+  # PERF #
+  ########
   provisioner "local-exec" {
     environment = {
       PUBLIC_IP  = "${self.public_ip}"
@@ -237,9 +306,12 @@ resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
     }
 
     # working_dir = "../playbooks/rhel"
-    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-configure.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-perf.yml -i ${self.public_ip},"
   }
 
+  #######
+  # BCC #
+  #######
   provisioner "local-exec" {
     environment = {
       PUBLIC_IP  = "${self.public_ip}"
@@ -247,12 +319,62 @@ resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
     }
 
     # working_dir = "../playbooks/rhel"
-    command     = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-netperf.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-bcc.yml -i ${self.public_ip},"
   }
 
-  tags = {
-    Name = "perf-cto-server-c5n_18xlarge-${count.index + 1}"
+  
+  #######
+  # PCP #
+  #######
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp.yml -i ${self.public_ip},"
   }
+
+  ###############################################
+  # PCP VECTOR PANDA - System Wide Flame Graphs #
+  ###############################################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
+  }
+
+  #################
+  # EC2 CONFIGURE #
+  #################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-configure.yml -i ${self.public_ip},"
+  }
+
+  ###########
+  # NETPERF #
+  ###########
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/ec2-netperf.yml -i ${self.public_ip},"
+  }
+
 }
 
 

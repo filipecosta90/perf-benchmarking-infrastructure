@@ -1,0 +1,24 @@
+---
+  # https://aws.amazon.com/amazon-linux-2/faqs/#Amazon_Linux_Extras
+- name: Install Performance Co-Pilot
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    
+  - name: Install pcp
+    become: yes
+    command: yum install pcp pcp-webapi pcp-zeroconf pcp-system-tools pcp-devel -y
+
+  - name: Start pmwebd
+    become: yes
+    command: service pmwebd start
+
+
+
+    
+  
+
+

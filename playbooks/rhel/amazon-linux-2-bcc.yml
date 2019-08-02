@@ -1,0 +1,33 @@
+---
+  # https://aws.amazon.com/amazon-linux-2/faqs/#Amazon_Linux_Extras
+- name: Install BCC
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    
+  - name: Install bcc
+    become: yes
+    command: sudo yum install kernel-headers-4.14.123-111.109.amzn2 -y
+
+  - name: Install bcc
+    become: yes
+    command: sudo yum install kernel-devel-4.14.123-111.109.amzn2 -y
+
+  - name: Install bcc
+    become: yes
+    command: sudo amazon-linux-extras install BCC -y
+
+  - name: Setup required bcc-devel
+    become: yes
+    command: yum -y install bcc-devel
+      
+  - name: Required reboot
+    reboot:
+      reboot_timeout: 300
+      
+    
+
+

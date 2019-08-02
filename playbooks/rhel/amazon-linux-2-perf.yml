@@ -1,0 +1,19 @@
+---
+- name: Install perf
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+    
+  - name: Install perf
+    become: yes
+    command: yum install perf -y
+
+
+
+    
+  
+
+

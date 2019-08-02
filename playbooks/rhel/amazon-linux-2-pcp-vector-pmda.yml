@@ -1,0 +1,39 @@
+---    
+- name: Install pcp-vector-pmda
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  vars:
+    installdir: /var/lib/pcp/pmdas
+  tasks:
+  - name: Installing git dependency
+    become: yes
+    command: yum install git -y
+
+  - name: 'clone pcp-vector-pmda'
+    git:
+      repo: 'https://github.com/spiermar/vector-pmda'
+      dest: '{{installdir}}/vector'
+      force: 'yes'
+
+  - name: make
+    command: make chdir={{installdir}}/vector/
+
+  - name: install pexpect
+    command: easy_install pexpect
+
+  - name: expect example
+    expect:
+      echo: yes
+      chdir: "{{installdir}}/vector/"
+      command: "./Install"
+      responses:
+        (.*)Please enter c(ollector) or m(onitor) or b(oth) [b]: "c"
+
+    
+
+
+    
