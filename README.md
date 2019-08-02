@@ -21,7 +21,37 @@ This repo aims to provide severall performance aware setups, to ensure the minim
 -------
 #### Included optimizations
 
-- ...
+- Optimizing within Instances deployment: 
+  - Via tuned-adm from RedHat:
+    - disabling tuned and ktune power saving mechanisms.
+    - enabling sysctl settings that improve the throughput performance of your disk and network I/O, and switches to the deadline scheduler.
+    - setting CPU governor to performance.
+  - Directly via Ansible:
+    - disabling Transparent Huge Pages.
+    - manually raising somaxconn to 65535.
+    - manually setting vm.overcommit_memory from 0 (default) to 1 ( never refuse any malloc ).
+
+- Optimizing within Instances life: 
+  - Directly via Ansible:
+    - [TODO] Overall Processor affinity and CPU pinning.
+    - [TODO] pinning the application and the queue to a specific CPU in the same NUMA node as the network device.
+
+
+- Optimizing Network Performance: 
+  - Always deploy within same placement group ( multiple 10Gbps flows )
+  - Addition of more network interfaces
+  - [TODO] Adjustment of network IRQ affinities towards the cores designated to dmc proxy
+  - [TODO] Usage of 10 x 10Gbps flows per large VM
+
+  - [TODO] TCP tunning
+    - [TODO] Adjustments on TCP receive window
+    - [TODO] Adjustments on TCP congestion control
+    - [TODO] Adjustments on TCP initial congestion window
+  
+  - [TODO] Adjustments on More RX/TX queues per VM ( 32 vs 8 ), (( better distribute ethernet interrupts across VMs )
+Test latency and jitter per VM
+  - [TODO] Prefer instances with Rx Checksum offload 
+
 
 
 -------
