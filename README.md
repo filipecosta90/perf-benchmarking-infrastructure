@@ -57,11 +57,19 @@ Test latency and jitter per VM
 -------
 #### Deployment
 
-- ...
+##### Deployment Agent Pre-requesites
+- awscli installed 
+- terraform installed
+- ansible installed
+- Ansible linux-system-roles.tuned installed ( run setup.sh )
+
+##### Deployment steps
+```bash
+terraform plan
+terraform apply
+```
 
 #### Terraform output and Vector usage
-
-...
 
 An example execution output:
 ```text
