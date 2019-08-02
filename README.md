@@ -59,3 +59,27 @@ perf_cto_server_c5n_18xlarge_vector = [
 ]
 
 ```
+
+Based on the variable outputs we can add an connection for at Vector. As an example we're adding host 18.191.162.170, with PCP Web API acessible via port 44323:
+
+![alt text][add_host]
+
+Out of the box CPU Graphs ( some of them ):
+![alt text][sample_cpu]
+
+System Wide Flame Graphs request start:
+![alt text][flame_start]
+
+System Wide Flame Graphs request end:
+![alt text][flame_ended]
+
+
+System Wide Flame Graphs output:
+![alt text][sample_flame]
+
+
+[add_host]: ./doc/vector_add_host.png "Sample Flamegraph collection ended"
+[sample_cpu]: ./doc/vector_sample_cpu.png "Sample Flamegraph collection ended"
+[flame_start]: ./doc/vector_flame_start.png "Sample Flamegraph collection ended"
+[flame_ended]: ./doc/vector_flame_ended.png "Sample Flamegraph collection ended"
+[sample_flame]: ./doc/vector_sample_flame.png "Sample Flamegraph collection ended"

@@ -217,19 +217,6 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp.yml -i ${self.public_ip},"
   }
 
-  ###############################################
-  # PCP VECTOR PANDA - System Wide Flame Graphs #
-  ###############################################
-  provisioner "local-exec" {
-    environment = {
-      PUBLIC_IP  = "${self.public_ip}"
-      PRIVATE_IP = "${self.private_ip}"
-    }
-
-    # working_dir = "../playbooks/rhel"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
-  }
-
   #################
   # EC2 CONFIGURE #
   #################
@@ -297,6 +284,20 @@ resource "aws_instance" "perf_cto_client_c5n_18xlarge" {
     # working_dir = "../playbooks/rhel"
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-thp.yml -i ${self.public_ip},"
   }
+
+  ###############################################
+  # PCP VECTOR PANDA - System Wide Flame Graphs #
+  ###############################################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
+  }
+
 
 }
 
@@ -378,19 +379,6 @@ resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp.yml -i ${self.public_ip},"
   }
 
-  ###############################################
-  # PCP VECTOR PANDA - System Wide Flame Graphs #
-  ###############################################
-  provisioner "local-exec" {
-    environment = {
-      PUBLIC_IP  = "${self.public_ip}"
-      PRIVATE_IP = "${self.private_ip}"
-    }
-
-    # working_dir = "../playbooks/rhel"
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
-  }
-
   #################
   # EC2 CONFIGURE #
   #################
@@ -456,6 +444,19 @@ resource "aws_instance" "perf_cto_server_c5n_18xlarge" {
 
     # working_dir = "../playbooks/rhel"
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-thp.yml -i ${self.public_ip},"
+  }
+
+  ###############################################
+  # PCP VECTOR PANDA - System Wide Flame Graphs #
+  ###############################################
+  provisioner "local-exec" {
+    environment = {
+      PUBLIC_IP  = "${self.public_ip}"
+      PRIVATE_IP = "${self.private_ip}"
+    }
+
+    # working_dir = "../playbooks/rhel"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../playbooks/rhel/amazon-linux-2-pcp-vector-pmda.yml -i ${self.public_ip},"
   }
 
 }
