@@ -1,0 +1,26 @@
+- name: Ensure the tuned-adm profile is throughput-performance
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - name: linux-system-roles.tuned
+      profile: throughput-performance
+
+  tasks:
+    - name: Get tuned version
+      command: tuned-adm --version
+      ignore_errors: true
+      register: tuned_version
+
+    - name: Get active profile
+      command: tuned-adm active
+      register: active
+
+    - set_fact:
+        active_profile: "{{ active.stdout_lines[0] | regex_replace('^.*\\: (.*)$', '\\1') }}"
+
+    - assert:
+        # assert that we have throughput-performance active
+        that: "{{ active_profile == ('throughput-performance') }}"

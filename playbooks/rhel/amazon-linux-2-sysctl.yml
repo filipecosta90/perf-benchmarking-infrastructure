@@ -1,0 +1,17 @@
+---
+- name: Manage entries in sysctl.conf
+  hosts: all
+  become: true
+  become_user: root
+  become_method: sudo
+  vars:
+    sysctl_settings:
+      net.core.somaxconn: 65535
+      vm.overcommit_memory: 1
+
+  tasks:
+    - name: set sysctl settings
+      sysctl: sysctl_set=yes reload=yes state=present
+        name="{{ item.key }}"
+        value="{{ item.value }}"
+      with_dict: "{{ sysctl_settings }}"

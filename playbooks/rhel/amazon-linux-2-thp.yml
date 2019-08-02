@@ -1,0 +1,19 @@
+---
+- name: THP
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+
+  - name: Disable THP support scripts added to rc.local
+    lineinfile:
+      path: /etc/rc.local
+      line: |
+        echo never > /sys/kernel/mm/transparent_hugepage/enabled
+        echo never > /sys/kernel/mm/transparent_hugepage/defrag
+
+  - name: Change permissions of /etc/rc.local to make it run on boot
+    shell: chmod +x /etc/rc.d/rc.local
+    become_method: sudo
