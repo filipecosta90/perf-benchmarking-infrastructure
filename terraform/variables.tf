@@ -27,19 +27,20 @@ variable "instance_ami" {
   description = "AMI for aws EC2 instance"
   default     = "ami-0d8f6eb4f641ef691"
 }
+
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5n.18xlarge"
+  default     = "c5n.9xlarge"
 }
 
 variable "instance_type_5m" {
   description = "type for aws EC2 instance"
-  default     = "c5.18xlarge"
+  default     = "c5.9xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 36
+  default     = 18
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -57,7 +58,7 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
 
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"
-  default     = 3
+  default     = 0
 }
 
 

@@ -26,5 +26,9 @@
   - name: Installing gcc
     become: yes
     command: yum install gcc -y
+
+  - name: Installing numactl
+    become: yes
+    command: yum install numactl -y
       
     

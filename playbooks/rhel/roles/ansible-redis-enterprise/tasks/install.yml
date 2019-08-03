@@ -26,27 +26,23 @@
   become: yes
   when:
     - ansible_os_family == 'RedHat'
-    - re_dir.stat.exists == False
 
 - name: do facts module to get latest information
   setup:
   when:
     - ansible_os_family == 'RedHat'
-    - re_dir.stat.exists == False
 
 - name: RHEL 6 - Downloading and Extracting '{{ re_filename_rhel6 }}'
   unarchive: src={{ re_url_rhel6 }} dest={{ re_tmp_path }} remote_src=yes
   when:
     - ansible_os_family == 'RedHat'
     - ansible_lsb.major_release|int == 6
-    - re_dir.stat.exists == False
 
 - name: RHEL 7 - Downloading and Extracting '{{ re_filename_rhel7 }}'
   unarchive: src={{ re_url_rhel7 }} dest={{ re_tmp_path }} remote_src=yes
   when:
     - ansible_os_family == 'RedHat'
-    - ansible_lsb.major_release|int == 7
-    - re_dir.stat.exists == False
+    - ansible_lsb.major_release|int != 6
 
 # - name: Gather package facts
 #   package_facts:

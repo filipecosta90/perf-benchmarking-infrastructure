@@ -19,8 +19,8 @@ Ansible role for installing [Redis Enterprise](https://redislabs.com/redis-enter
 ### Variables
 | Variable             | Default     | Comments                                   |
 | :---                 | :---        | :---                                              |
-| ```re_version```| ```5.2.0```| String, The current version of Redis Enterprise. |
-| ```re_version_build```| ```14```| String, The current build of the version of Redis Enterprise. |
+| ```re_version```| ```5.4.4```| String, The current version of Redis Enterprise. |
+| ```re_version_build```| ```7```| String, The current build of the version of Redis Enterprise. |
 | ```re_flash_enabled```| ```False```| Boolean, True if this install is for [Redis on Flash](https://redislabs.com/redis-enterprise-documentation/concepts-architecture/memory-architecture/redis-flash/). |
 | ```re_username```| ```demo@redislabs.com```| String, Username for UI and Rest api. |
 | ```re_password```| ```123456```| String, Password for UI and Rest api. |

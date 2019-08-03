@@ -7,7 +7,7 @@
   become_user: root
   become_method: sudo
   tasks:
-    
+
   - name: Install bcc
     become: yes
     command: sudo yum install kernel-headers-4.14.123-111.109.amzn2 -y
