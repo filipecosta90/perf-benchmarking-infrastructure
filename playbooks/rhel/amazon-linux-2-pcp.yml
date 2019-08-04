@@ -12,9 +12,17 @@
     become: yes
     command: yum install pcp pcp-webapi pcp-zeroconf pcp-system-tools pcp-devel -y
 
-  - name: Start pmwebd
-    become: yes
-    command: service pmwebd start
+  - name: Restart service pmwebd, in all cases
+    service:
+      name: pmwebd
+      state: started
+
+  # the service should start on boot.
+  - name: Enable service pmwebd, and not touch the state
+    service:
+      name: pmwebd
+      enabled: yes
+
 
 
 

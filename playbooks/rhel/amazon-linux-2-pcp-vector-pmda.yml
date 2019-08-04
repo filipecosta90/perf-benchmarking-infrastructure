@@ -33,6 +33,11 @@
       responses:
         (.*)Please enter c(ollector) or m(onitor) or b(oth) [b]: "c"
 
+  - name: Restart service pmwebd, in all cases
+    service:
+      name: pmwebd
+      state: restarted
+
     
 
 

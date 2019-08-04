@@ -147,7 +147,7 @@ resource "aws_instance" "perf_cto_client_c5n_9xlarge" {
   vpc_security_group_ids = ["${aws_security_group.performance_cto_sg.id}"]
   key_name               = "${aws_key_pair.performance_cto_us_east_2.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
-  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core}"
+  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group        = "${aws_placement_group.perf_cto_pg.name}"
 
   ebs_block_device {
@@ -261,7 +261,7 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   vpc_security_group_ids = ["${aws_security_group.performance_cto_sg.id}"]
   key_name               = "${aws_key_pair.performance_cto_us_east_2.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
-  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core}"
+  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group        = "${aws_placement_group.perf_cto_pg.name}"
 
   ebs_block_device {

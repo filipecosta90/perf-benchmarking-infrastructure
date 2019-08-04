@@ -30,5 +30,9 @@
   - name: Installing numactl
     become: yes
     command: yum install numactl -y
+
+  - name: Installing htop
+    become: yes
+    command: yum install htop -y
       
     
