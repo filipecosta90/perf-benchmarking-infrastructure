@@ -1,3 +1,4 @@
+# from http://dmitrypol.github.io/redis/2019/02/25/1000-node-redis-cluster.html
 ---
 - name: Install Redis OSS version cluster
   hosts: all

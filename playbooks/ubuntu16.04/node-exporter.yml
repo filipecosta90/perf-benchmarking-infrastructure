@@ -1,0 +1,9 @@
+---    
+- name: Install node exporter to the host
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+    - cloudalchemy.node-exporter
