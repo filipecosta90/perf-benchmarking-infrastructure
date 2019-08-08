@@ -1,0 +1,43 @@
+---    
+- name: Install memtier
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+ 
+  vars:
+    installdir: /usr/share/
+
+  tasks:
+  - name: yum install
+    yum: name={{item}} state=latest
+    with_items:
+      - autoconf 
+      - automake
+      - gcc
+      - gcc-c++
+      - pcre-devel
+      - libevent-devel
+
+  - name: 'clone Memtier repository'
+    git:
+      repo: 'https://github.com/RedisLabs/memtier_benchmark'
+      dest: '{{installdir}}/memtier_benchmark'
+      force: 'yes'
+
+  - name: autoreconf
+    command: autoreconf -ivf chdir={{installdir}}/memtier_benchmark/
+
+  - name: configure
+    command: ./configure chdir={{installdir}}/memtier_benchmark/
+
+  - name: make
+    command: make chdir={{installdir}}/memtier_benchmark/
+
+  - name: install 
+    command: make install chdir={{installdir}}/memtier_benchmark/
+
+
+    

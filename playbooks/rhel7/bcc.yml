@@ -6,13 +6,15 @@
   become: yes
   become_user: root
   become_method: sudo
+  vars:
+    - bccpath: '/usr/share/bcc/tools/'
   tasks:
 
-  - name: Install bcc
+  - name: Install kernel-headers
     become: yes
     command: sudo yum install kernel-headers-4.14.123-111.109.amzn2 -y
 
-  - name: Install bcc
+  - name: Install kernel-devel
     become: yes
     command: sudo yum install kernel-devel-4.14.123-111.109.amzn2 -y
 
@@ -23,6 +25,13 @@
   - name: Setup required bcc-devel
     become: yes
     command: yum -y install bcc-devel
+
+  - name: Add bcc bin dir to system-wide $PATH.
+    copy:
+      dest: /etc/profile.d/bccpath.sh
+      content: 'PATH=$PATH:{{ bccpath }}'
+      #enable other users to use the path
+      mode: '0644'
       
   - name: Required reboot
     reboot:

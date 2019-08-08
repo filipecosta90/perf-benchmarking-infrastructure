@@ -1,0 +1,10 @@
+port {{ item }}
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+daemonize yes
+logfile redis-{{ item }}.log
+appendonly no
+protected-mode no
+save ""
+loglevel "warning"

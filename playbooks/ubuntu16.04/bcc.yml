@@ -1,0 +1,42 @@
+---
+  # https://aws.amazon.com/amazon-linux-2/faqs/#Amazon_Linux_Extras
+- name: Install BCC
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    - bccpath: '/usr/sbin/'
+  tasks:
+  
+  - name: Add repo.iovisor.org
+    become: yes
+    command: echo "deb https://repo.iovisor.org/apt/$(lsb_release -cs) $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/iovisor.list
+
+  - name: Add apt-key
+    become: yes
+    command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4052245BD4284CDD
+
+  - name: Update
+    become: yes
+    command: apt update
+
+  - name: Install kernel-headers
+    become: yes
+    command: apt install bpfcc-tools python-bpfcc libbpfcc linux-tools-4.4.0-1087-aws -y
+
+  - name: Add bcc bin dir to system-wide $PATH.
+    copy:
+      dest: /etc/profile.d/bccpath.sh
+      content: 'PATH=$PATH:{{ bccpath }}'
+      #enable other users to use the path
+      mode: '0644'
+      
+  - name: Required reboot
+    reboot:
+      reboot_timeout: 300
+      
+    
+
+

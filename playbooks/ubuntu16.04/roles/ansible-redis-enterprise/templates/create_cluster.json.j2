@@ -1,0 +1,31 @@
+{
+  "action": "create_cluster",
+  "cluster": {
+    "nodes": [],
+    "name": "{{ re_cluster_name_fqdn }}",
+    "clobber": true
+  },
+  "node": {
+  {% if re_flash_enabled %}
+    "bigstore_driver": "rocksdb",
+  {% endif %}
+    "paths": {
+    {% if re_flash_enabled %}
+          "bigstore_path": "{{ re_flash_path }}",
+    {% endif %}
+      "persistent_path": "{{ re_persistent_path }}",
+      "ephemeral_path": "{{ re_ephemeral_path }}"
+    },
+    "identity": {
+      "addr": "{{ ip_int_node }}",
+      "external_addr": [
+        "{{ ip_ext_node }}"
+      ]
+    }
+  },
+  "license" : "{{ re_license }}",
+  "credentials": {
+    "username": "{{ re_username }}",
+    "password": "{{ re_password }}"
+  }
+}

@@ -1,0 +1,58 @@
+---
+  # https://aws.amazon.com/amazon-linux-2/faqs/#Amazon_Linux_Extras
+- name: Install Performance Co-Pilot
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+
+  # - name: add netflixoss
+  #   become: yes
+  #   command: echo "deb https://dl.bintray.com/netflixoss/ubuntu {codename} main" | sudo tee -a /etc/apt/sources.list
+    
+  # - name: Update
+  #   become: yes
+  #   command: apt-get update -y
+
+  - name: Install pcp
+    become: yes
+    command: apt-get install pcp pcp-gui pcp-webapi  -y
+
+  - name: Restart service pmcd, in all cases
+    service:
+      name: pmcd
+      state: started
+
+  - name: Restart service pmwebd, in all cases
+    service:
+      name: pmwebd
+      state: started
+  
+  - name: Restart service pmlogger, in all cases
+    service:
+      name: pmlogger
+      state: started
+
+  # the services should start on boot.
+  - name: Enable service pmcd, and not touch the state
+    service:
+      name: pmcd
+      enabled: yes
+  - name: Enable service pmwebd, and not touch the state
+    service:
+      name: pmwebd
+      enabled: yes
+  - name: Enable service pmlogger, and not touch the state
+    service:
+      name: pmlogger
+      enabled: yes
+
+
+
+
+    
+  
+
+

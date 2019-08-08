@@ -1,0 +1,35 @@
+---
+- name: THP
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+
+  - name: Disable THP support scripts added to rc.local
+    copy:
+      dest: /etc/systemd/system/disable-thp.service
+      content: |
+        [Unit]
+        Description=Disable Transparent Huge Pages (THP)
+
+        [Service]
+        Type=simple
+        ExecStart=/bin/sh -c "echo 'never' > /sys/kernel/mm/transparent_hugepage/enabled && echo 'never' > /sys/kernel/mm/transparent_hugepage/defrag"
+
+        [Install]
+        WantedBy=multi-user.target
+
+
+  - name: "reload SystemD daemon"
+    become: yes
+    command: systemctl daemon-reload
+
+  - name: "Start script"
+    become: yes
+    command: systemctl start disable-thp
+
+  - name: "enable script on boot level"
+    become: yes
+    command: systemctl enable disable-thp

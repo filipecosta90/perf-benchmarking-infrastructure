@@ -1,0 +1,41 @@
+---
+    
+- name: Configure EC2 instance
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: Update the machine
+    command: apt update -y
+
+  - name: Upgrade the machine
+    command: apt upgrade -y
+  
+  - name: Installing git
+    become: yes
+    command: apt install git -y
+
+  - name: Installing autogen
+    become: yes
+    command: apt install autogen -y
+
+  - name: Installing gcc
+    become: yes
+    command: apt install gcc -y
+  
+  - name: Installing make
+    become: yes
+    command: apt install make -y
+
+  - name: Installing numactl
+    become: yes
+    command: apt install numactl -y
+
+  - name: Installing htop
+    become: yes
+    command: apt install htop -y
+      
+    

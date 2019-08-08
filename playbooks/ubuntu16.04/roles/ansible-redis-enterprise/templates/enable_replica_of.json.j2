@@ -1,0 +1,14 @@
+{
+	"replica_sync": "enabled",
+	"sync": "enabled",
+	"replica_sources": [
+	  {
+	    "uri": "redis://admin:{{ bdbs_info | json_query(authQuery) }}@{{ bdbs_info | json_query(endpointQuery) }}:{{ bdbs_info | json_query(portQuery) }}"
+	  }
+	],
+	"sync_sources": [
+	  {
+			"uri": "redis://admin:{{ bdbs_info | json_query(authQuery) }}@{{ bdbs_info | json_query(endpointQuery) }}:{{ bdbs_info | json_query(portQuery) }}"
+	  }
+	]
+}

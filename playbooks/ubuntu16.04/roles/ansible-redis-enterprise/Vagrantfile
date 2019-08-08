@@ -1,0 +1,77 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+NETWORK_PRIVATE_IP_PREFIX = "172.16.3."
+
+Vagrant.configure(2) do |config|
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 2
+    vb.memory = "2048"
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+  end
+
+  # Ubuntu 16.04
+  config.vm.define "ubuntu1604" do |ubuntu1604|
+    ubuntu1604.vm.hostname = "ubuntu1604test"
+    ubuntu1604.vm.box = "ubuntu/xenial64"
+    ubuntu1604.vm.network :private_network, ip: NETWORK_PRIVATE_IP_PREFIX + "2"
+
+    ubuntu1604.vm.provision "ansible" do |ansible|
+      ansible.playbook = "tests/test.yml"
+      ansible.groups = {
+        "re_master" => ["ubuntu1604"],
+        "re_node" => [],
+        "re_quorum_only" => []
+      }
+    end
+  end
+
+  # Ubuntu 14.04
+  config.vm.define "ubuntu1404" do |ubuntu1404|
+    ubuntu1404.vm.hostname = "ubuntu1404test"
+    ubuntu1404.vm.box = "ubuntu/trusty64"
+    ubuntu1404.vm.network :private_network, ip: NETWORK_PRIVATE_IP_PREFIX + "3"
+
+    ubuntu1404.vm.provision "ansible" do |ansible|
+      ansible.playbook = "tests/test.yml"
+      ansible.groups = {
+        "re_master" => ["ubuntu1404"],
+        "re_node" => [],
+        "re_quorum_only" => []
+      }
+    end
+  end
+
+  # CentOS 7
+  config.vm.define "centos7" do |centos7|
+    centos7.vm.hostname = "centos7test"
+    centos7.vm.box = "centos/7"
+    centos7.vm.network :private_network, ip: NETWORK_PRIVATE_IP_PREFIX + "4"
+
+    centos7.vm.provision "ansible" do |ansible|
+      ansible.playbook = "tests/test.yml"
+      ansible.groups = {
+        "re_master" => ["centos7"],
+        "re_node" => [],
+        "re_quorum_only" => []
+      }
+    end
+  end
+
+  # CentOS 6
+  config.vm.define "centos6" do |centos6|
+    centos6.vm.hostname = "centos6test"
+    centos6.vm.box = "centos/6"
+    centos6.vm.network :private_network, ip: NETWORK_PRIVATE_IP_PREFIX + "5"
+
+    centos6.vm.provision "ansible" do |ansible|
+      ansible.playbook = "tests/test.yml"
+      ansible.groups = {
+        "re_master" => ["centos6"],
+        "re_node" => [],
+        "re_quorum_only" => []
+      }
+    end
+  end
+end

@@ -1,0 +1,49 @@
+---
+- name: Install Redis OSS version cluster
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redis_src_dir: ~/redis_src
+    redis_server: "{{ redis_src_dir }}/src/redis-server"
+    redis_cluster_dir: ~/redis_cluster
+    redis_port_start: 6379
+  tasks:
+  - name: install os packages
+    become: yes
+    yum:
+      name: [make, gcc]
+      update_cache: yes
+  - name: clone redis git repo
+    git:
+      repo: https://github.com/antirez/redis.git
+      dest: "{{ redis_src_dir }}"
+      version: "{{ redis_version }}"
+  - name: compile redis
+    command: make
+    args:
+      chdir: "{{ redis_src_dir }}"
+  - name: create cluster dirs
+    file:
+      path: "{{ redis_cluster_dir }}/{{ item }}"
+      state: directory
+    with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count }}
+  - name: copy redis-server to cluster dirs
+    copy:
+      remote_src: true
+      src: "{{ redis_server }}"
+      dest: "{{ redis_cluster_dir }}/{{ item }}/"
+      mode: u+x
+    with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count }}
+  - name: copy redis.conf to cluster dirs
+    template:
+      src: oss_redis_cluster.conf.j2
+      dest: "{{ redis_cluster_dir }}/{{ item }}/redis.conf"
+    with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count }}
+  - name: start redis-server
+    command: ./redis-server redis.conf
+    args:
+      chdir: "{{ redis_cluster_dir }}/{{ item }}"
+    with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count }}

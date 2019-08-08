@@ -1,0 +1,23 @@
+---
+- name: Install perf
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  
+  - name: Update
+    become: yes
+    command: apt update
+
+  - name: Install perf
+    become: yes
+    command: apt install linux-tools-common linux-tools-generic linux-tools-4.4.0-1087-aws -y
+
+
+
+    
+  
+
+

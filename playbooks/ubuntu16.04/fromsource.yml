@@ -1,0 +1,15 @@
+
+---
+- name: install dependencies for from source builds
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: 'Install dependencies'
+    become: yes
+    command: apt install -yy debhelper build-essential autoconf automake libtool pkg-config zlib1g-dev libpcre3-dev libncurses5-dev python-setuptools python-pip python-dev libcurl4-openssl-dev libssl-dev uuid-dev libsasl2-dev unzip bison flex g++ libboost-all-dev ragel swig vim-common libffi-dev libreadline6-dev graphviz dh-systemd libxmlrpc-core-c3-dev cmake
+
+

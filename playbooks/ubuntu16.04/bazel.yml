@@ -1,0 +1,27 @@
+
+---
+- name: Install Bazel 
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+
+  tasks:
+  - name: 'Install dependencies'
+    become: yes
+    command: apt install -yy pkg-config zip g++ unzip python
+
+  - name: 'Install bazel (1/3)'
+    become: yes
+    command: wget https://github.com/bazelbuild/bazel/releases/download/0.22.0/bazel-0.22.0-installer-linux-x86_64.sh
+
+  - name: 'Install bazel (2/3)'
+    become: yes
+    command:  chmod u+x bazel-0.22.0-installer-linux-x86_64.sh
+
+  - name: 'Install bazel (2/3)'
+    become: yes
+    command:  sudo ./bazel-0.22.0-installer-linux-x86_64.sh 
+
+

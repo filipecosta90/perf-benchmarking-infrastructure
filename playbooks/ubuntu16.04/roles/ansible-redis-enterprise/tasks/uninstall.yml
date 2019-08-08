@@ -1,0 +1,24 @@
+---
+# This is the task to uninstall Redis Enterprise.
+
+- name: Uninstall for Ubuntu
+  apt: name=redislabs state=absent purge=yes
+  become: yes
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Uninstall for RedHat Family
+  yum: name=redislabs state=absent
+  become: yes
+  when: ansible_os_family == 'RedHat'
+
+- name: delete /var/opt/redislabs
+  file: path=/var/opt/redislabs state=absent
+  become: yes
+
+- name: delete /opt/redislabs
+  file: path=/opt/redislabs state=absent
+  become: yes
+
+- name: delete /etc/opt/redislabs
+  file: path=/etc/opt/redislabs state=absent
+  become: yes

@@ -1,0 +1,25 @@
+---
+# This is the defaults file for Redis Enterprise.
+
+# Task triggers
+re_run_install: True
+re_run_bootstrap: True
+re_run_createdatabase: True
+re_run_updatelicense: False
+re_run_uninstall: False
+re_run_rollingupgrade: False
+
+# Default Variables
+re_version: '5.4.4'
+re_version_build: '7'
+re_download_path: 'redis-enterprise-software-downloads'
+re_flash_enabled: False
+re_domain_name: 'local'
+re_cluster_name: 'cluster'
+re_username: 'demo@redislabs.com'
+re_password: '123456'
+re_persistent_path: '/var/opt/redislabs/persist'
+re_ephemeral_path: '/var/opt/redislabs/tmp'
+re_flash_path: '/var/opt/redislabs/flash'
+re_license: ''
+re_lookup_nodes_dns: False

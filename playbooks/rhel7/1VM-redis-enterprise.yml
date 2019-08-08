@@ -13,7 +13,7 @@
     - re_databases:
       - db_name: 'perf-db'
         db_password: 'perf'
-        db_memory_size: 42949672960
+        db_memory_size: 21474836480        
         db_type: 'redis'
         db_replication: 'false'
         db_sharding: 'true'
