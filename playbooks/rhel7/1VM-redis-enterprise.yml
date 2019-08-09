@@ -10,6 +10,8 @@
     - re_username: 'performance@redislabs.com'
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
+    - re_domain_name: 'local'
+    - re_cluster_name: 'cluster-1VM-rhel7'
     - re_databases:
       - db_name: 'perf-db'
         db_password: 'perf'
