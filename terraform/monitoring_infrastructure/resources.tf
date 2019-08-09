@@ -20,7 +20,12 @@ terraform {
   }
 }
 
-resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = "${aws_instance.monitoring_instance[0].id}"
+  allocation_id = data.terraform_remote_state.shared_resources.outputs.perf_cto_eip_id
+}
+
+resource "aws_instance" "monitoring_instance" {
   count                  = "${var.server_instance_count}"
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
@@ -32,6 +37,7 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
+
   ebs_block_device {
     device_name = "${var.instance_device_name}"
     volume_size = 1024
@@ -39,8 +45,12 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
     iops        = 5000
     encrypted   = false
     #dont delete on termination the prometheus disk
-    delete_on_termination = false
+    delete_on_termination = true
   }
+
+  # lifecycle {
+  #   ignore_changes = ["ebs_block_device"]
+  # }
 
   tags = {
     Name = "${var.setup_name}-${count.index + 1}"
@@ -57,18 +67,18 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
     }
   }
 
-  #################
-  # EC2 CONFIGURE #
-  #################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
-  }
-
   ##############
   # Prometheus #
   ##############
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus.yml -i ${self.public_ip},"
+  }
+
+  ###########
+  # Grafana #
+  ###########
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/grafana.yml -i ${self.public_ip}, --extra-vars \"prometheus_web_listen_address=${data.terraform_remote_state.shared_resources.outputs.perf_cto_eip_public_ip}:9090\""
   }
 
 }

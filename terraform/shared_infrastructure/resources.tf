@@ -19,6 +19,15 @@ resource "aws_vpc" "vpc" {
   }
 }
 
+
+#keep monitoring ip always the same
+resource "aws_eip" "perf_cto_eip" {
+  vpc = false
+  tags = {
+    Name = "perf-cto-monitoring-eip"
+  }
+}
+
 resource "aws_placement_group" "perf_cto_pg" {
   name     = "${var.placement_group_name}"
   strategy = "cluster"

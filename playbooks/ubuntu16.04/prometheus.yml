@@ -7,12 +7,6 @@
   roles:
   - cloudalchemy.prometheus
   vars:
-    # prometheus_targets:
-      # node:
-      # - targets:
-      #   - localhost:9100
-      #   labels:
-      #     env: perf-cto-prometheus
     prometheus_scrape_configs:
       - job_name: 'node'
         ec2_sd_configs:
@@ -28,3 +22,24 @@
             # Use the instance ID as the instance label
           - source_labels: [__meta_ec2_instance_id]
             target_label: instance
+      - job_name: 'redis-enterprise'
+        scrape_interval: 30s
+        scrape_timeout: 30s
+        metrics_path: /
+        scheme: https
+        tls_config:
+          insecure_skip_verify: true
+        ec2_sd_configs:
+          - region: "{{ lookup('env','EC2_REGION') }}"
+            access_key: "{{ lookup('env','EC2_ACCESS_KEY') }}"
+            secret_key: "{{ lookup('env','EC2_SECRET_KEY') }}"
+            port: 8070
+        relabel_configs:
+            # Only monitor instances with a Name starting with "perf"
+          - source_labels: [__meta_ec2_tag_Name]
+            regex: perf-cto-RE.*
+            action: keep
+            # Use the instance ID as the instance label
+          - source_labels: [__meta_ec2_instance_id]
+            target_label: instance
+
