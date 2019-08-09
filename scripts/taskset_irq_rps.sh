@@ -72,7 +72,7 @@ dmc_worker_list=$(/opt/redislabs/bin/dmc-cli -ts root list | grep worker | awk '
 dmc_listener=$(/opt/redislabs/bin/dmc-cli -ts root list | grep listener | awk '{printf "%i\n",$3}' )
 irq_threads=$(grep $IFACE /proc/interrupts | awk -F: '{print $1}')
 #this is only used to enable disable hyperthreading for redis on runtime
-HYPERTHREADING=0
+HYPERTHREADING=1
 CORE=0
 
 echo "total cores  "$total_cores
