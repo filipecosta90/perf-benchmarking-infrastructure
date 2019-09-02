@@ -1,0 +1,42 @@
+# from http://dmitrypol.github.io/redis/2019/02/25/1000-node-redis-cluster.html
+---
+- name: Install Redis OSS version cluster with RedisAI Module
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redis_src_dir: ~/redis_src
+    redis_server: "{{ redis_src_dir }}/src/redis-server"
+    redis_server_dir: "{{ redis_src_dir }}"
+    redis_port_start: 6379
+  tasks:
+  - name: install os packages
+    become: yes
+    yum:
+      name: [make, gcc]
+      update_cache: yes
+  - name: clone redis git repo
+    git:
+      repo: https://github.com/antirez/redis.git
+      dest: "{{ redis_src_dir }}"
+      version: "{{ redis_version }}"
+  - name: compile redis
+    command: make
+    args:
+      chdir: "{{ redis_src_dir }}"
+  - name: install redis
+    command: make install
+    args:
+      chdir: "{{ redis_src_dir }}"
+
+  - name: copy redis.conf
+    template:
+      src: oss_redis_ai.conf.j2
+      dest: "{{ redis_server_dir }}/redis.conf"
+
+  - name: start redis-server
+    command: redis-server {{ redis_server_dir }}/redis.conf --loadmodule {{ redis_ai_module_path }}
+    args:
+      chdir: "{{ redis_server_dir }}"

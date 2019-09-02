@@ -1,0 +1,41 @@
+# from http://dmitrypol.github.io/redis/2019/02/25/1000-node-redis-cluster.html
+---
+- name: Install Redis AI OSS version 
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redisai_root_dir: ~/redisai_src
+    redisai_build_dir: "{{ redisai_root_dir }}/build"
+  tasks:
+  - name: install os packages
+    become: yes
+    apt:
+      name: [make, gcc,cmake]
+      update_cache: yes
+  - name: clone RedisAI git repo
+    git:
+      repo: https://github.com/RedisAI/RedisAI.git
+      dest: "{{ redisai_root_dir }}"
+      # version: "{{ redis_ai_version }}"
+  - name: Checkout and build and download the libraries for the CPU-only backends (TensorFlow, PyTorch, ONNXRuntime)
+    command: bash get_deps.sh cpu
+    args:
+      chdir: "{{ redisai_root_dir }}"
+
+  - name: Create RedisAI Build directory
+    file:
+      path: "{{ redisai_build_dir }}"
+      state: directory
+
+  - name: Build RedisAI Module
+    command: cmake ..
+    args:
+      chdir: "{{ redisai_build_dir }}"
+  - name: compile RedisAI
+    command: make
+    args:
+      chdir: "{{ redisai_build_dir }}"
+  
