@@ -18,6 +18,11 @@ variable "instance_ami" {
   default     = "ami-0944c173745e93dff"
 }
 
+variable "redis_module" {
+ description = "redis_module"
+  default     = "RedisAI"
+}
+
 variable "instance_volume_size" {
     description = "EC2 instance volume_size"
   default = "128"
@@ -34,17 +39,12 @@ variable "instance_device_name" {
 }
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5n.9xlarge"
-}
-
-variable "instance_type_5m" {
-  description = "type for aws EC2 instance"
-  default     = "c5.9xlarge"
+  default     = "c5n.4xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 18
+  default     = 8
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -55,7 +55,7 @@ variable "instance_cpu_threads_per_core" {
 
 variable "instance_cpu_threads_per_core_hyperthreading" {
   description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"
-  default     = 2
+  default     = 1
 }
 
 
@@ -105,11 +105,5 @@ variable "redis_ai_oss_version" {
  description = "redis_ai_oss_version"
   default     = "v0.3.1"
 }
-
-variable "redis_module" {
- description = "redis_module"
-  default     = "RedisAI"
-}
-
 
 

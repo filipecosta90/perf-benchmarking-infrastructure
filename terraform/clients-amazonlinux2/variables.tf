@@ -5,6 +5,11 @@ variable "region" {
 }
 
 
+variable "setup_name" {
+  description = "setup name"
+  default = "perf-cto-client-rhel7"
+}
+
 variable "os" {
  description = "os"
   default     = "rhe7"
@@ -43,6 +48,27 @@ variable "instance_ami" {
 variable "instance_type" {
   description = "type for aws EC2 instance"
   default     = "c5n.9xlarge"
+}
+
+variable "instance_device_name" {
+    description = "EC2 instance device name"
+  default = "/dev/sda1"
+}
+
+
+variable "redis_module" {
+ description = "redis_module"
+  default     = "RedisEnterprise"
+}
+
+variable "instance_volume_size" {
+    description = "EC2 instance volume_size"
+  default = "128"
+}
+
+variable "instance_volume_iops" {
+    description = "EC2 instance volume_iops"
+  default = "100"
 }
 
 variable "instance_type_5m" {

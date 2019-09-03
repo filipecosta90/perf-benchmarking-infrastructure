@@ -21,18 +21,18 @@ terraform {
 }
 
 
-resource "aws_network_interface" "perf_cto_server_c5n_9xlarge_network_interface" {
+resource "aws_network_interface" "perf_cto_server_network_interface" {
   count           = "${var.instance_network_interface_plus_count}"
   subnet_id       = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
   security_groups = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
 
   attachment {
-    instance     = "${aws_instance.perf_cto_server_c5n_9xlarge[0].id}"
+    instance     = "${aws_instance.perf_cto_server[0].id}"
     device_index = "${count.index + 2}"
   }
 }
 
-resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
+resource "aws_instance" "perf_cto_server" {
   count                  = "${var.server_instance_count}"
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"

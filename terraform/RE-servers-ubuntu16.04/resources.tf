@@ -46,15 +46,21 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
 
   ebs_block_device {
     device_name           = "${var.instance_device_name}"
-    volume_size           = 256
+    volume_size           = "${var.instance_volume_size}"
     volume_type           = "io1"
-    iops                  = 3000
+    iops                  = "${var.instance_volume_iops}"
     encrypted             = false
     delete_on_termination = true
   }
 
+  volume_tags = {
+    Name = "ebs_block_device-${var.setup_name}-${count.index + 1}"
+    RedisModule = "${var.redis_module}"
+  }
+
   tags = {
     Name = "${var.setup_name}-${count.index + 1}"
+    RedisModule = "${var.redis_module}"
   }
 
   # Ansible requires Python to be installed on the remote machine as well as the local machine.

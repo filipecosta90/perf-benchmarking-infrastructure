@@ -29,6 +29,21 @@ variable "instance_type" {
   default     = "c5.xlarge"
 }
 
+variable "redis_module" {
+ description = "redis_module"
+  default     = "RedisEnterprise"
+}
+
+variable "instance_volume_size" {
+    description = "EC2 instance volume_size"
+  default = "1024"
+}
+
+variable "instance_volume_iops" {
+    description = "EC2 instance volume_iops"
+  default = "1000"
+}
+
 variable "instance_type_5m" {
   description = "type for aws EC2 instance"
   default     = "c5.9xlarge"

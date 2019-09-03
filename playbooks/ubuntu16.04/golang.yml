@@ -1,0 +1,20 @@
+---
+    #
+- name: Install AIBench executables
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  # vars:
+  #   go_version: 1.12
+  #   go_get:
+  #     - name: aibench
+  #       url: github.com/filipecosta90/aibench
+  #   go_install:
+  #       # repo is the git clone url, ssh or https.
+  #     - repo: https://github.com/filipecosta90/aibench.git
+  #       package: github.com/filipecosta90/aibench/cmd/aibench_generate_data
+  roles:
+    - name: fubarhouse.golang
+  

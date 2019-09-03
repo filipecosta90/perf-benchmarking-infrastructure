@@ -15,17 +15,24 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/monitoring-infrastructure.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-aibench-clients-ubuntu16.04.tfstate"
     region = "us-east-1"
   }
 }
 
-resource "aws_eip_association" "eip_assoc" {
-  instance_id   = "${aws_instance.monitoring_instance[0].id}"
-  allocation_id = data.terraform_remote_state.shared_resources.outputs.perf_cto_eip_id
+
+resource "aws_network_interface" "perf_cto_server_network_interface" {
+  count           = "${var.instance_network_interface_plus_count}"
+  subnet_id       = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
+  security_groups = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
+
+  attachment {
+    instance     = "${aws_instance.perf_cto_server[0].id}"
+    device_index = "${count.index + 2}"
+  }
 }
 
-resource "aws_instance" "monitoring_instance" {
+resource "aws_instance" "perf_cto_server" {
   count                  = "${var.server_instance_count}"
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
@@ -37,6 +44,14 @@ resource "aws_instance" "monitoring_instance" {
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
+  ebs_block_device {
+    device_name           = "${var.instance_device_name}"
+    volume_size           = "${var.instance_volume_size}"
+    volume_type           = "io1"
+    iops                  = "${var.instance_volume_iops}"
+    encrypted             = false
+    delete_on_termination = true
+  }
 
   volume_tags = {
     Name = "ebs_block_device-${var.setup_name}-${count.index + 1}"
@@ -47,7 +62,6 @@ resource "aws_instance" "monitoring_instance" {
     Name = "${var.setup_name}-${count.index + 1}"
     RedisModule = "${var.redis_module}"
   }
-
 
   # Ansible requires Python to be installed on the remote machine as well as the local machine.
   provisioner "remote-exec" {
@@ -60,18 +74,22 @@ resource "aws_instance" "monitoring_instance" {
     }
   }
 
-  ##############
-  # Prometheus #
-  ##############
+  #########################
+  # Install node exporter #
+  #########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
   }
 
-  ###########
-  # Grafana #
-  ###########
+   ################################################################################
+  # Redis AI OSS related
+  ################################################################################
+
+  ##########################
+  # AIBench Client related #
+  ##########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/grafana.yml -i ${self.public_ip}, --extra-vars \"prometheus_web_listen_address=${data.terraform_remote_state.shared_resources.outputs.perf_cto_eip_public_ip}:9090\""
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/aibench.yml -i ${self.public_ip},"
   }
 
 }

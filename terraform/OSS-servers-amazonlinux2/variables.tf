@@ -25,6 +25,22 @@ variable "redis_oss_version" {
   default     = "5.0.4"
 }
 
+
+variable "redis_module" {
+ description = "redis_module"
+  default     = "RedisOSS"
+}
+
+variable "instance_volume_size" {
+    description = "EC2 instance volume_size"
+  default = "128"
+}
+
+variable "instance_volume_iops" {
+    description = "EC2 instance volume_iops"
+  default = "100"
+}
+
 variable "ssh_user" {
  description = "ssh_user"
   default     = "ec2-user"

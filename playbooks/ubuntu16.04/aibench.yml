@@ -1,0 +1,45 @@
+---
+- name: Install aibench
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    aibench_root_dir: $GOPATH/src/github.com/filipecosta90/aibench
+  tasks:
+  - name: add-apt-repository ppa:longsleep/golang-backports
+    become: yes
+    command: add-apt-repository ppa:longsleep/golang-backports
+
+  - name: apt-get update
+    become: yes
+    command: apt-get update
+
+  - name: apt-get update
+    become: yes
+    command: apt-get install golang-go -y
+
+  - name: modify .bashrc
+    become: yes
+    blockinfile:
+      dest: "~/.bashrc"
+      block: |
+        export GOPATH=$HOME/go
+        export GOBIN=$GOPATH/bin
+        export PATH=$GOBIN:$PATH:/usr/local/go/bin
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for golang'
+      insertafter: EOF
+      create: yes 
+
+  - name: Go get aibench
+    become: yes
+    command: go get github.com/filipecosta90/aibench
+
+  - name: Install the aibench_* executables
+    become: yes
+    command: bash install.sh 
+    args:
+      chdir: "{{ aibench_root_dir }}"
+
+  
