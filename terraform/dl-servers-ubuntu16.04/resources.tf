@@ -153,7 +153,7 @@ resource "aws_instance" "perf_cto_server" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
   }
 
-   ################################################################################
+  ################################################################################
   # Redis AI OSS related
   ################################################################################
 
@@ -171,4 +171,14 @@ resource "aws_instance" "perf_cto_server" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redis-server-oss-ai.yml -i ${self.public_ip}, --extra-vars \"redis_version=${var.redis_oss_version} redis_ai_module_path=~/redisai_src/build/redisai.so\""
   }
 
+  ################################################################################
+  # TensorFlow Serving related
+  ################################################################################
+
+  ##############################
+  # Install TensorFlow Serving #
+  ##############################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
+  }
 }

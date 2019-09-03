@@ -1,0 +1,29 @@
+---
+- name: Install TensorFlow Serving
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  # - name: Add TensorFlow Serving distribution URI as a package source
+  #   become: yes
+  #   command: echo "deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal" | tee /etc/apt/sources.list.d/tensorflow-serving.list && curl https://storage.googleapis.com/tensorflow-serving-apt/tensorflow-serving.release.pub.gpg | apt-key add -
+  
+  # Add TensorFlow Serving repository into sources list.
+  - apt_repository:
+      repo: deb [arch=amd64] http://storage.googleapis.com/tensorflow-serving-apt stable tensorflow-model-server tensorflow-model-server-universal
+      state: present
+
+  - name: Run the equivalent of "apt-get update" as a separate step
+    apt:
+      update_cache: yes
+  - name: Install TensorFlow ModelServer
+    become: yes
+    apt: 
+      name: tensorflow-model-server
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+
+  
