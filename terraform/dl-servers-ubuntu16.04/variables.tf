@@ -60,6 +60,7 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
 
 
 
+
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"
   default     = 0
@@ -95,10 +96,9 @@ variable "key_name" {
   default     = "performance-cto-us-east-2"
 }
 
-
 variable "redis_oss_version" {
  description = "redis_oss_version"
-  default     = "5.0.4"
+  default     = "5.0.5"
 }
 
 variable "redis_ai_oss_version" {
