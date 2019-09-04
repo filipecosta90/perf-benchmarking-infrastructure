@@ -149,6 +149,13 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
   }
 
+  ############################
+  # Install process exporter #
+  ############################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
+  }
+
   ################################################################################
   # Redis OSS related
   ################################################################################

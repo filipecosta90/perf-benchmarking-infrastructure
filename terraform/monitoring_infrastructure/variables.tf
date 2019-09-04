@@ -31,7 +31,7 @@ variable "instance_type" {
 
 variable "redis_module" {
  description = "redis_module"
-  default     = "RedisEnterprise"
+  default     = "perf-cto-common"
 }
 
 variable "instance_volume_size" {

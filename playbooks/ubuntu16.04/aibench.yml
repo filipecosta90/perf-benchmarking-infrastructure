@@ -10,15 +10,14 @@
   tasks:
   - name: add-apt-repository ppa:longsleep/golang-backports
     become: yes
-    command: add-apt-repository ppa:longsleep/golang-backports
+    command: add-apt-repository ppa:longsleep/golang-backports -y
 
-  - name: apt-get update
+  - name: Install golang-go
     become: yes
-    command: apt-get update
-
-  - name: apt-get update
-    become: yes
-    command: apt-get install golang-go -y
+    apt: 
+      name: golang-go
+      state: latest
+      update_cache: yes
 
   - name: modify .bashrc
     become: yes
@@ -32,14 +31,26 @@
       insertafter: EOF
       create: yes 
 
-  - name: Go get aibench
+  - name: Go install aibench aibench_generate_data
     become: yes
-    command: go get github.com/filipecosta90/aibench
+    command: go install github.com/filipecosta90/aibench/cmd/aibench_generate_data
 
-  - name: Install the aibench_* executables
+  - name: Go install aibench aibench_load_data
     become: yes
-    command: bash install.sh 
-    args:
-      chdir: "{{ aibench_root_dir }}"
+    command: go install github.com/filipecosta90/aibench/cmd/aibench_load_data
+
+  - name: Go install aibench aibench_run_inference_redisai
+    become: yes
+    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_redisai
+
+  - name: Go install aibench aibench_run_inference_tensorflow_serving
+    become: yes
+    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_tensorflow_serving
+
+  - name: Go install aibench aibench_run_inference_flask_tensorflow
+    become: yes
+    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_flask_tensorflow
+
+
 
   

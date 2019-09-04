@@ -1,0 +1,18 @@
+---
+- name: Install Prometheus process-exporter ( exporter that mines /proc to report on selected processes. )
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    process_exporter_names: |
+      {% raw %}
+        - name: "{{.Comm}}"
+          cmdline:
+            - '.+'
+      {% endraw %}
+  roles:
+  - cloudalchemy.process_exporter
+
+  
