@@ -34,5 +34,9 @@
   - name: Installing htop
     become: yes
     command: yum install htop -y
+
+  - name: Installing NUMAD
+    become: yes
+    command: yum install numad -y
       
     
