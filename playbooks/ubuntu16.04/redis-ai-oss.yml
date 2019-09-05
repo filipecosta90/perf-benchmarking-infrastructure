@@ -19,7 +19,8 @@
     git:
       repo: https://github.com/RedisAI/RedisAI.git
       dest: "{{ redisai_root_dir }}"
-      # version: "{{ redis_ai_version }}"
+      #version: perf-cmake
+      version: "{{ redis_ai_version }}"
   - name: Checkout and build and download the libraries for the CPU-only backends (TensorFlow, PyTorch, ONNXRuntime)
     command: bash get_deps.sh cpu
     args:
@@ -31,11 +32,16 @@
       state: directory
 
   - name: Build RedisAI Module
-    command: cmake ..
+    command: cmake .. -DBUILD_TF=ON -DBUILD_ORT=OFF -DBUILD_TORCH=OFF -DCMAKE_BUILD_TYPE=DEBUG
     args:
       chdir: "{{ redisai_build_dir }}"
   - name: compile RedisAI
     command: make
+    args:
+      chdir: "{{ redisai_build_dir }}"
+
+  - name: install RedisAI
+    command: make install
     args:
       chdir: "{{ redisai_build_dir }}"
   

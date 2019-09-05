@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default = "perf-cto-dl-servers-ubuntu16.04"
+  default = "perf-cto-dl-servers-ubuntu18.04"
 }
 
 variable "region" {
@@ -14,8 +14,8 @@ variable "server_instance_count" {
 }
 
 variable "instance_ami" {
-  description = "AMI for aws EC2 instance - Deep Learning AMI (Ubuntu)"
-  default     = "ami-0944c173745e93dff"
+  description = "AMI for aws EC2 instance - us-east-2 Ubuntu 18.04 LTS ami-021b7b04f1ac696c2 "
+  default     = "ami-021b7b04f1ac696c2"
 }
 
 variable "redis_module" {
@@ -103,7 +103,7 @@ variable "redis_oss_version" {
 
 variable "redis_ai_oss_version" {
  description = "redis_ai_oss_version"
-  default     = "v0.3.1"
+  default     = "perf-cmake"
 }
 
 

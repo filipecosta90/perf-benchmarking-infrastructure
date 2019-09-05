@@ -8,7 +8,22 @@
   - cloudalchemy.prometheus
   vars:
     prometheus_scrape_configs:
-      - job_name: 'node'
+      - job_name: 'process-exporter'
+        ec2_sd_configs:
+          - region: "{{ lookup('env','EC2_REGION') }}"
+            access_key: "{{ lookup('env','EC2_ACCESS_KEY') }}"
+            secret_key: "{{ lookup('env','EC2_SECRET_KEY') }}"
+            port: 9256
+        relabel_configs:
+            # Only monitor instances with a Name starting with "perf"
+          - source_labels: [__meta_ec2_tag_Name]
+            regex: perf.*
+            action: keep
+            # Use the instance ID as the instance label
+          - source_labels: [__meta_ec2_instance_id]
+            target_label: instance
+
+      - job_name: 'node-exporter'
         ec2_sd_configs:
           - region: "{{ lookup('env','EC2_REGION') }}"
             access_key: "{{ lookup('env','EC2_ACCESS_KEY') }}"
@@ -22,9 +37,10 @@
             # Use the instance ID as the instance label
           - source_labels: [__meta_ec2_instance_id]
             target_label: instance
+
       - job_name: 'redis-enterprise'
-        scrape_interval: 5s
-        scrape_timeout: 30s
+        scrape_interval: 10s
+        scrape_timeout: 9s
         metrics_path: /
         scheme: https
         tls_config:
