@@ -13,7 +13,7 @@
   - name: install os packages
     become: yes
     apt:
-      name: [make, gcc,cmake]
+      name: [make, gcc,cmake, g++]
       update_cache: yes
   - name: clone RedisAI git repo
     git:
