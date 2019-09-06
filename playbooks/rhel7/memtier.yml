@@ -20,11 +20,13 @@
       - gcc-c++
       - pcre-devel
       - libevent-devel
+      - zlib-devel
 
   - name: 'clone Memtier repository'
     git:
       repo: 'https://github.com/RedisLabs/memtier_benchmark'
       dest: '{{installdir}}/memtier_benchmark'
+      version: 1.2.17
       force: 'yes'
 
   - name: autoreconf

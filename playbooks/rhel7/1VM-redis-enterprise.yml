@@ -32,7 +32,7 @@
         db_evict_policy: 'disabled'
         db_persistence: 'disabled'
         db_aof_policy: 'appendfsync-every-sec'
-    - re_run_install: False
+    - re_run_install: True
     - re_run_createdatabase: True
   
   roles:

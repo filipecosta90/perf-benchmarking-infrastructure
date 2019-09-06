@@ -12,7 +12,7 @@ variable "setup_name" {
 
 variable "os" {
   description = "os"
-  default     = "rhe7"
+  default     = "rhel7"
 }
 
 
