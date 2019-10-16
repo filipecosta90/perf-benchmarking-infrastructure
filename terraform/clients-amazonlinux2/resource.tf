@@ -69,14 +69,12 @@ resource "aws_instance" "perf_cto_client" {
     RedisModule = "${var.redis_module}"
   }
 
-
-  # Ansible requires Python to be installed on the remote machine as well as the local machine.
   provisioner "remote-exec" {
-    inline = ["sudo yum install python -y"]
-    connection {
+    script = "./../../scripts/wait_for_instance.sh"
+      connection {
       host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
       type        = "ssh"               # in this case, `self` is the resource (the server).
-      user        = "ec2-user"
+      user        = "${var.ssh_user}"
       private_key = "${file(var.private_key)}"
     }
   }

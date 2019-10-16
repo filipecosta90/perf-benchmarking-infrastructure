@@ -59,19 +59,17 @@ ebs_block_device {
     RedisModule = "${var.redis_module}"
   }
 
-  # Ansible requires Python to be installed on the remote machine as well as the local machine.
+  # wait for instance to be ready to receive connection
   provisioner "remote-exec" {
-    inline = ["sudo yum install python -y"]
-    connection {
+    script = "./../../scripts/wait_for_instance.sh"
+      connection {
       host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
       type        = "ssh"               # in this case, `self` is the resource (the server).
       user        = "${var.ssh_user}"
       private_key = "${file(var.private_key)}"
-
-      #need to increase timeout to larger then 5m
-      timeout = "15m"
     }
-    
+    #need to increase timeout to larger then 5m
+      timeout = "15m"
   }
 
   ################################################################################
