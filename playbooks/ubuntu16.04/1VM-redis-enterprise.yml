@@ -12,6 +12,8 @@
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
     - re_cluster_name: 'cluster-1VM-ubuntu16_04'
+    - re_proxy_max_threads: 10
+    - re_proxy_threads: 10
     - re_databases:
       - db_name: 'perf-db'
         db_password: 'perf'
@@ -35,6 +37,7 @@
     - re_run_install: True
     - re_run_uninstall: False
     - re_run_createdatabase: True
+    - re_run_rladmin: True
   
   roles:
     - ansible-redis-enterprise

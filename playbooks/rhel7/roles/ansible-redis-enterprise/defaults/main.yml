@@ -3,6 +3,7 @@
 
 # Task triggers
 re_run_install: True
+re_run_rladmin: True
 re_run_bootstrap: True
 re_run_createdatabase: True
 re_run_updatelicense: False
@@ -23,3 +24,5 @@ re_ephemeral_path: '/var/opt/redislabs/tmp'
 re_flash_path: '/var/opt/redislabs/flash'
 re_license: ''
 re_lookup_nodes_dns: False
+re_proxy_max_threads: 8
+re_proxy_threads: 8

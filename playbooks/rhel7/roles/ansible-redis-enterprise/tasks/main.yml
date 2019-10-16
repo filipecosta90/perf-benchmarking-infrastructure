@@ -27,6 +27,11 @@
     include: updatelicense.yml
     when: re_run_updatelicense
 
+  - name: Update Redis Enterprise Proxy Settings.
+    hosts: re_master:re_node:re_quorum_only
+    include: rladmin.yml
+    when: re_run_rladmin
+
   - name: Uninstall Redis Enterprise.
     hosts: re_master:re_node:re_quorum_only
     include: uninstall.yml
