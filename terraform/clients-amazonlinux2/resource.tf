@@ -30,6 +30,11 @@ resource "aws_network_interface" "perf_cto_client_network_interface" {
     instance     = "${aws_instance.perf_cto_client[0].id}"
     device_index = "${count.index + 2}"
   }
+
+  tags = {
+    Name = "eni-${var.setup_name}-${count.index + 2}"
+    RedisModule = "${var.redis_module}"
+  } 
 }
 
 resource "aws_instance" "perf_cto_client" {
@@ -48,7 +53,7 @@ resource "aws_instance" "perf_cto_client" {
   ebs_block_device {
     device_name           = "${var.instance_device_name}"
     volume_size           = "${var.instance_volume_size}"
-    volume_type           = "io1"
+    volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
     encrypted             = false
     delete_on_termination = true
@@ -79,27 +84,27 @@ resource "aws_instance" "perf_cto_client" {
   ################################################################################
   # performance related
   ################################################################################
-  ########
-  # PERF #
-  ########
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/perf.yml -i ${self.public_ip},"
-  }
+  # ########
+  # # PERF #
+  # ########
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/perf.yml -i ${self.public_ip},"
+  # }
 
-  #######
-  # BCC #
-  #######
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/bcc.yml -i ${self.public_ip},"
-  }
+  # #######
+  # # BCC #
+  # #######
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/bcc.yml -i ${self.public_ip},"
+  # }
 
 
-  #######
-  # PCP #
-  #######
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/pcp.yml -i ${self.public_ip},"
-  }
+  # #######
+  # # PCP #
+  # #######
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/pcp.yml -i ${self.public_ip},"
+  # }
 
   #################
   # EC2 CONFIGURE #
@@ -108,12 +113,12 @@ resource "aws_instance" "perf_cto_client" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
   }
 
-  ###########
-  # NETPERF #
-  ###########
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netperf.yml -i ${self.public_ip},"
-  }
+  # ###########
+  # # NETPERF #
+  # ###########
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netperf.yml -i ${self.public_ip},"
+  # }
 
 
   ####################################
@@ -132,19 +137,19 @@ resource "aws_instance" "perf_cto_client" {
   }
 
 
-  ####################################
-  # DISABLING TRANSPARENT HUGE PAGES #
-  ####################################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/thp.yml -i ${self.public_ip},"
-  }
+  # ####################################
+  # # DISABLING TRANSPARENT HUGE PAGES #
+  # ####################################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/thp.yml -i ${self.public_ip},"
+  # }
 
-  ###############################################
-  # PCP VECTOR PANDA - System Wide Flame Graphs #
-  ###############################################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/pcp-vector-pmda.yml -i ${self.public_ip},"
-  }
+  # ###############################################
+  # # PCP VECTOR PANDA - System Wide Flame Graphs #
+  # ###############################################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/pcp-vector-pmda.yml -i ${self.public_ip},"
+  # }
 
   ###############################################
   # Memtier benchmark #
@@ -160,12 +165,12 @@ resource "aws_instance" "perf_cto_client" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
   }
 
-  ############################
-  # Install process exporter #
-  ############################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
-  }
+  # ############################
+  # # Install process exporter #
+  # ############################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
+  # }
 
 }
 

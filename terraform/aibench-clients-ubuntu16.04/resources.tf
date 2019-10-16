@@ -47,7 +47,7 @@ resource "aws_instance" "perf_cto_server" {
   ebs_block_device {
     device_name           = "${var.instance_device_name}"
     volume_size           = "${var.instance_volume_size}"
-    volume_type           = "io1"
+    volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
     encrypted             = false
     delete_on_termination = true
@@ -86,6 +86,13 @@ resource "aws_instance" "perf_cto_server" {
   ############################
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
+  }
+
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
   }
 
    ################################################################################

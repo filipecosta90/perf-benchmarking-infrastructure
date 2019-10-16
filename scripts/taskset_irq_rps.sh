@@ -1,13 +1,5 @@
 #!/bin/bash
 
-# check for irqbalance running
-IRQBALANCE_ON=`ps ax | grep -v grep | grep -q irqbalance; echo $?`
-if [ "$IRQBALANCE_ON" == "0" ] ; then
-	echo " WARNING: irqbalance is running and will"
-	echo "          likely override this script's affinitization."
-	echo "          Please stop the irqbalance service and/or execute"
-	echo "          'killall irqbalance'"
-fi
 
 function enableAllCores() {
   for CPU in /sys/devices/system/cpu/cpu[0-9]*; do
@@ -68,7 +60,7 @@ total_cores=$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)
 total_shards=$1
 IFACE=eth0
 redis_list=$(pgrep redis-server | sort | head -n$total_shards )
-dmc_worker_list=$(/opt/redislabs/bin/dmc-cli -ts root list | grep worker | awk '{printf "%i\n",$3}' )
+dmc_worker_list=$(/opt/redislabs/bin/dmc-cli -ts root list | grep worker | awk '{printf "%i\n",$3}' | sort | head -n16 )
 dmc_listener=$(/opt/redislabs/bin/dmc-cli -ts root list | grep listener | awk '{printf "%i\n",$3}' )
 irq_threads=$(grep $IFACE /proc/interrupts | awk -F: '{print $1}')
 #this is only used to enable disable hyperthreading for redis on runtime

@@ -1,0 +1,10 @@
+---    
+- name: Install netdata
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+  - jffz.netdata
+    

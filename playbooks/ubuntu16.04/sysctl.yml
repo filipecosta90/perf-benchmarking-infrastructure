@@ -8,10 +8,12 @@
     sysctl_settings:
       net.core.somaxconn: 65535
       vm.overcommit_memory: 1
+      vm.min_free_kbytes: 5242880
 
   tasks:
     - name: set sysctl settings
       sysctl: sysctl_set=yes reload=yes state=present
         name="{{ item.key }}"
         value="{{ item.value }}"
+        sysctl_set=yes
       with_dict: "{{ sysctl_settings }}"

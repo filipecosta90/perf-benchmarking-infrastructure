@@ -6,7 +6,7 @@
   become_user: root
   become_method: sudo
   vars:
-    aibench_root_dir: $GOPATH/src/github.com/filipecosta90/aibench
+    aibench_root_dir: $GOPATH/src/github.com/RedisAI/aibench
   tasks:
   - name: add-apt-repository ppa:longsleep/golang-backports
     become: yes
@@ -33,23 +33,23 @@
 
   - name: Go install aibench aibench_generate_data
     become: yes
-    command: go install github.com/filipecosta90/aibench/cmd/aibench_generate_data
+    command: go install github.com/RedisAI/aibench/cmd/aibench_generate_data
 
   - name: Go install aibench aibench_load_data
     become: yes
-    command: go install github.com/filipecosta90/aibench/cmd/aibench_load_data
+    command: go install github.com/RedisAI/aibench/cmd/aibench_load_data
 
   - name: Go install aibench aibench_run_inference_redisai
     become: yes
-    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_redisai
+    command: go install github.com/RedisAI/aibench/cmd/aibench_run_inference_redisai
 
   - name: Go install aibench aibench_run_inference_tensorflow_serving
     become: yes
-    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_tensorflow_serving
+    command: go install github.com/RedisAI/aibench/cmd/aibench_run_inference_tensorflow_serving
 
   - name: Go install aibench aibench_run_inference_flask_tensorflow
     become: yes
-    command: go install github.com/filipecosta90/aibench/cmd/aibench_run_inference_flask_tensorflow
+    command: go install github.com/RedisAI/aibench/cmd/aibench_run_inference_flask_tensorflow
 
 
 

@@ -11,7 +11,7 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: 'cluster-1VM-rhel7'
+    - re_cluster_name: 'cluster-1vm-ubuntu16-redisai'
     - re_databases:
       - db_name: 'perf-db'
         db_password: ''
@@ -19,9 +19,9 @@
         db_type: 'redis'
         db_replication: 'false'
         db_sharding: 'true'
-        db_shards_count: 10
+        db_shards_count: 2
         db_version: '5'
-        db_oss_cluster: 'false'
+        db_oss_cluster: 'true'
         db_proxy_policy: 'single'
         db_shards_placement: 'dense'
         # config for more than one node
@@ -33,6 +33,7 @@
         db_persistence: 'disabled'
         db_aof_policy: 'appendfsync-every-sec'
     - re_run_install: True
+    - re_run_uninstall: False
     - re_run_createdatabase: True
   
   roles:

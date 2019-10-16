@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default = "perf-cto-aibench-clients-ubuntu16.04"
+  default = "perf-cto-dl-servers-RE-ubuntu16.04"
 }
 
 variable "region" {
@@ -14,49 +14,43 @@ variable "server_instance_count" {
 }
 
 variable "instance_ami" {
-  // us-east-2	xenial	16.04 LTS	amd64	hvm:ebs-io1
-  description = "AMI for aws EC2 instance - Ubuntu"
-  default     = "ami-07e26819c90e50327"
+  description = "AMI for aws EC2 instance - Deep Learning AMI (Ubuntu)"
+  default     = "ami-0944c173745e93dff"
+}
+
+variable "redis_module" {
+ description = "redis_module"
+  default     = "RedisAI"
 }
 
 variable "instance_volume_size" {
     description = "EC2 instance volume_size"
-  default = "64"
+  default = "256"
 }
 
-variable "instance_volume_iops" {
-    description = "EC2 instance volume_iops"
-  default = "100"
-}
 
 variable "instance_volume_type" {
     description = "EC2 instance volume_type"
   default = "gp2"
 }
 
+variable "instance_volume_iops" {
+    description = "EC2 instance volume_iops"
+  default = "5000"
+}
+
 variable "instance_device_name" {
     description = "EC2 instance device name"
   default = "/dev/sda1"
 }
-
-# Model	m5.24xlarge	m5d.24xlarge	m5a.24xlarge	m5ad.24xlarge
-# Processor	Xeon Platinum 8000
-# (Skylake-SP)	Xeon Platinum 8000
-# (Skylake-SP)	AMD EPYC 7000	AMD EPYC 7000
-# vCPU	96	96	96	96
-# Memory (GiB)	384	384	384	384
-# Instance Storage (GiB)	EBS-Only	4 x 900 NVMe SSD	EBS-Only	4 x 900 NVMe SSD
-# Network Bandwidth (Gbps)	25	25	20	20
-# EBS Bandwidth (Mbps)	14,000	14,000	10,000	10,000
-
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "m5d.24xlarge"
+  default     = "c5n.4xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 48
+  default     = 8
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -69,6 +63,7 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
   description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"
   default     = 2
 }
+
 
 
 
@@ -107,10 +102,14 @@ variable "key_name" {
   default     = "performance-cto-us-east-2"
 }
 
-variable "redis_module" {
- description = "redis_module"
-  default     = "RedisAI"
+variable "redis_oss_version" {
+ description = "redis_oss_version"
+  default     = "5.0.5"
 }
 
+variable "redis_ai_oss_version" {
+ description = "redis_ai_oss_version"
+  default     = "perf-cmake"
+}
 
 

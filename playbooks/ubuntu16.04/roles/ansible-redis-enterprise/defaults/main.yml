@@ -10,7 +10,7 @@ re_run_uninstall: False
 re_run_rollingupgrade: False
 
 # Default Variables
-re_version: '5.4.4'
+re_version: '5.4.8'
 re_version_build: '7'
 re_download_path: 'redis-enterprise-software-downloads'
 re_flash_enabled: False

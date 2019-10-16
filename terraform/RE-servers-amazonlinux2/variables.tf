@@ -61,27 +61,32 @@ variable "instance_volume_size" {
 
 variable "instance_volume_iops" {
     description = "EC2 instance volume_iops"
-  default = "100"
+  default = "500"
+}
+
+variable "instance_volume_type" {
+    description = "EC2 instance volume_type"
+  default = "gp2"
 }
 
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5n.9xlarge"
+  default     = "c5.18xlarge"
 }
 
 variable "instance_type_5m" {
   description = "type for aws EC2 instance"
-  default     = "c5.9xlarge"
+  default     = ".18xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 18
+  default     = 36
 }
 
 variable "instance_cpu_threads_per_core" {
   description = "CPU threads per core for aws EC2 instance"
-  default     = 1
+  default     = 2
 }
 
 

@@ -12,7 +12,7 @@ variable "setup_name" {
 
 variable "os" {
  description = "os"
-  default     = "rhe7"
+  default     = "rhel7"
 }
 
 
@@ -25,7 +25,7 @@ variable "server_instance_count" {
   default = "1"
 }
 variable "client_instance_count" {
-  default = "1"
+  default = "2"
 }
 
 variable "cidr_vpc" {
@@ -69,6 +69,11 @@ variable "instance_volume_size" {
 variable "instance_volume_iops" {
     description = "EC2 instance volume_iops"
   default = "100"
+}
+
+variable "instance_volume_type" {
+    description = "EC2 instance volume_type"
+  default = "gp2"
 }
 
 variable "instance_type_5m" {
