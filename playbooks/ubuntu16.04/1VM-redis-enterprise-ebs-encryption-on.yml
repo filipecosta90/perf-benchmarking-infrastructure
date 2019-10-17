@@ -11,21 +11,22 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: 'cluster-1vm-ubuntu16-redisai'
+    - re_cluster_name: 'cluster-1vm-ebs-encryption-on'
+    - re_home_dir: '/opt/redislabs'
+    - re_proxy_max_threads: 32
+    - re_proxy_threads: 32
     - re_version: '5.4.6'
     - re_version_build: '18'
-    - re_proxy_max_threads: 4
-    - re_proxy_threads: 4
     - re_databases:
       - db_name: 'perf-db'
-        db_password: ''
-        db_memory_size: 21474836480        
+        db_password: 'perf'
+        db_memory_size: 558345748480        
         db_type: 'redis'
         db_replication: 'false'
         db_sharding: 'true'
-        db_shards_count: 2
+        db_shards_count: 32
         db_version: '5'
-        db_oss_cluster: 'true'
+        db_oss_cluster: 'false'
         db_proxy_policy: 'single'
         db_shards_placement: 'dense'
         # config for more than one node
@@ -34,8 +35,8 @@
         # db_shards_placement: 'sparse'
         db_redis_port: 12000
         db_evict_policy: 'disabled'
-        db_persistence: 'disabled'
-        db_aof_policy: 'appendfsync-every-sec'
+        db_persistence: 'aof'
+        db_aof_policy: 'appendfsync-always'
     - re_run_install: True
     - re_run_uninstall: False
     - re_run_createdatabase: True

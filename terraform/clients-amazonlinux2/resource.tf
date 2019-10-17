@@ -163,6 +163,13 @@ resource "aws_instance" "perf_cto_client" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
   }
 
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+  }
+  
   # ############################
   # # Install process exporter #
   # ############################

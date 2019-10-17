@@ -49,10 +49,11 @@ resource "aws_instance" "perf_cto_server" {
     volume_size           = "${var.instance_volume_size}"
     volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
-    encrypted             = false
+    encrypted             = "${var.instance_volume_encrypted}"
     delete_on_termination = true
     
   }
+
 
   volume_tags = {
     Name = "ebs_block_device-${var.setup_name}-${count.index + 1}"
@@ -146,6 +147,13 @@ resource "aws_instance" "perf_cto_server" {
   #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../../playbooks/${var.os}/pcp-vector-pmda.yml -i ${self.public_ip},"
   # }
 
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+  }
+  
   #########################
   # Install node exporter #
   #########################
@@ -177,6 +185,7 @@ resource "aws_instance" "perf_cto_server" {
   # provisioner "local-exec" {
   #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redis-server-oss-ai.yml -i ${self.public_ip}, --extra-vars \"redis_version=${var.redis_oss_version} redis_ai_module_path=~/redisai_src/build/redisai.so\""
   # }
+  
 
   # ################################################################################
   # # TensorFlow Serving related

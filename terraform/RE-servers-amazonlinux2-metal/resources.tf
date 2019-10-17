@@ -173,6 +173,13 @@ ebs_block_device {
     }
   }
 
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+  }
+
   ##############
   # Install RE #
   ##############

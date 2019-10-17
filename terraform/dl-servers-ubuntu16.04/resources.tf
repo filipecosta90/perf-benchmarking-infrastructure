@@ -75,6 +75,13 @@ resource "aws_instance" "perf_cto_server" {
     }
   }
 
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+  }
+
   #################
   # EC2 CONFIGURE #
   #################

@@ -3,12 +3,12 @@
 
 # Set Proxy max_threads
 - name: Set Proxy max_threads
-  shell: "{{ re_home_dir }}/bin/rladmin tune proxy max_threads {{ re_proxy_max_threads }}"
+  shell: "{{ re_home_dir }}/bin/rladmin tune proxy all max_threads {{ re_proxy_max_threads }}"
   become: yes
 
 # Set Proxy threads
 - name: Set Proxy threads
-  shell: "{{ re_home_dir }}/bin/rladmin tune proxy threads {{ re_proxy_threads }}"
+  shell: "{{ re_home_dir }}/bin/rladmin tune proxy all threads {{ re_proxy_threads }}"
   become: yes
 
 # Restart dmc

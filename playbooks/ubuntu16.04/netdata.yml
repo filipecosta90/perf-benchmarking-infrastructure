@@ -7,4 +7,10 @@
   become_method: sudo
   roles:
   - jffz.netdata
-    
+
+  tasks:
+  - name: Ensure the default Port is set to 49999
+    lineinfile:
+      path: /etc/netdata/netdata.conf
+      regexp: '# default port = 19999'
+      line: default port = 49999
