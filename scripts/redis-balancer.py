@@ -30,11 +30,34 @@ class NumaNode:
         self.processcount = processcount
 
 
-class VMprocessInfo:
-    def __init__(self, vm_name, processid, vcpu_num):
-        self.vm_name = vm_name
-        self.processid = processid
-        self.vcpu_num = vcpu_num
+class RedisProcessInfo:
+    def __init__(self, redis_name, processid, command_args):
+        self.redis_name = redis_name
+        self.pid = processid
+        self.command_args = command_args
+        self.bind = -1
+        self.numa_node_id = -1
+        self.conf_file_name = None
+        self.conf_file_lines = None
+        for arg in self.command_args:
+            if ".conf" in arg:
+                self.conf_file_name = arg
+        if self.conf_file_name is not None:
+            self.read_conf_file(self.conf_file_name)
+
+    def read_conf_file(self, filename):
+        print "reading {}".format(filename)
+        f = open(filename, "r")
+        if f.mode == 'r':
+            self.conf_file_lines = f.readlines()
+            print self.conf_file_lines
+
+    def __str__(self):
+        return "redis-server in pid: {pid}, with args {command_args}, numa node: {numa_node_id}".format(
+            pid=self.pid,
+            command_args=self.command_args,
+            numa_node_id=self.numa_node_id
+        )
 
 
 # Python numactl output parsing
@@ -56,37 +79,22 @@ def parsenumactl():
     return node_list
 
 
-# Returns a list of VM processes, pids and their vcpu count
-
-def parse_vmlist(libvirt_run_dir):
-    process = subprocess.Popen(['virsh list | tail -n +3'], shell=True, stdout=subprocess.PIPE)
-    vmname_list = process.communicate()
-    vmname_list = str.splitlines(vmname_list[0])
-    vm_list = {}
-    for index in range(len(vmname_list)):
-        if not str.split(vmname_list[index]):
-            continue
-        vm_name = str.split(vmname_list[index])[1]
-        runcmd = 'virsh dominfo ' + vm_name + ' | grep CPU | head -n 1'
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        vcpu_count = str.split(str.splitlines(process.communicate()[0])[0])[1]
-        runcmd = 'grep pid ' + libvirt_run_dir + vm_name + '.xml' + ' | head -n 1 | egrep -oh \'([0-9])*\''
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        vm_pid = str.splitlines(process.communicate()[0])[0]
-        vm_list[index] = VMprocessInfo(vm_name, vm_pid, vcpu_count)
-    return vm_list
-
-
 # Python redis process list parsing
 
-def parse_redis_processlist():
-    process = subprocess.Popen(['ps -e | grep redis-server-5'], shell=True, stdout=subprocess.PIPE)
+def parse_redis_processlist(redis_str):
+    process = subprocess.Popen(['ps -e | grep ' + redis_str], shell=True, stdout=subprocess.PIPE)
+
     vmraw_list = process.communicate()
     vmraw_list = str.splitlines(vmraw_list[0])
-    vmpid_list = []
+    redis_dict = {}
     for index in range(len(vmraw_list)):
-        vmpid_list.append(str.split(vmraw_list[index])[0])
-    return vmpid_list
+        row = str.split(vmraw_list[index])
+        pid = row[0]
+        conf = row[3:]
+        if redis_str in row[3] and pid != process.pid:
+            redis_dict[index] = RedisProcessInfo(pid, pid, conf)
+
+    return redis_dict
 
 
 # Python kvm cset parsing, returns all the cset processes for a list of numa nodes
@@ -294,6 +302,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         print 'Utility does not take arguments.. yet'
         sys.exit(1)
+
+    redis_dict = parse_redis_processlist("redis-server")
+    for k, v in redis_dict.items():
+        print v
+
     if required_utilities(['taskset', 'numactl', 'chrt']) == 0:
         print 'Utilities Missing! Exiting..'
         sys.exit(1)
@@ -307,8 +320,7 @@ if __name__ == "__main__":
         sys.exit(1)
     print numa_list[0].node_number
     print numa_list[0].cpu_list
-    redis_list = parse_redis_processlist()
-    print redis_list
+
     # # Create cpu sets
     # if create_cset(numa_list) == 0:
     # 	print 'Program Error: could not create cpu sets using cset, see cset documentation for furthur details'
