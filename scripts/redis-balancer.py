@@ -179,22 +179,25 @@ def redis_rebalancer(numa_list, redis_dict):
     numa_node_ids = numa_list.keys()
     print redis_pids
     print numa_node_ids
-    rediss_per_numa = math.ceil(len(redis_pids) / len(numa_node_ids))
+    nredis = len(redis_pids)
+    nnodes = len(numa_node_ids)
+    rediss_per_numa = math.ceil( nredis / nnodes )
     print "will split {nredis} redis pids among {nnodes} numa nodes. {per_node} redis's per numa node".format(
-        nredis=redis_pids,
-        nnodes=rediss_per_numa,
+        nredis=nredis,
+        nnodes=nnodes,
         per_node=rediss_per_numa)
 
     for id in numa_node_ids:
         nelems = rediss_per_numa
-        numa_cpus = numa_list[id]
+        cpu_list = numa_list[id].cpu_list
+        node_number = numa_list[id].node_number
         while nelems > 0 and len(redis_pids) > 0:
             pid = redis_pids.pop(0)
             nelems = nelems - 1
             print "setting redis with pid {pid} affinity to numa node {nodeid} with cpu's({cpulist})".format(
                 pid=pid,
-                nodeid=id,
-                cpulist=numa_cpus
+                nodeid=node_number,
+                cpulist=cpu_list
             )
 
     # self.node_number = node_number
