@@ -38,10 +38,13 @@ class RedisProcessInfo:
         self.bind = -1
         self.numa_node_id = -1
         self.conf_file_name = None
-        self.conf_file_lines = None
-        for arg in self.command_args:
-            if ".conf" in arg:
-                self.conf_file_name = arg
+        self.conf_file_lines = []
+        self.auth = None
+
+        for v in command_args:
+            if ".conf" in v:
+                self.conf_file_name = v
+
         if self.conf_file_name is not None:
             self.read_conf_file(self.conf_file_name)
 
@@ -50,11 +53,19 @@ class RedisProcessInfo:
         f = open(filename, "r")
         if f.mode == 'r':
             self.conf_file_lines = f.readlines()
-            print self.conf_file_lines
+            #print self.conf_file_lines
+
+        for v in self.conf_file_lines:
+            if "requirepass" in v:
+                self.auth = str.split(v)[1]
+
+        # print "requirepass {}".format(self.auth)
+
 
     def __str__(self):
-        return "redis-server in pid: {pid}, with args {command_args}, numa node: {numa_node_id}".format(
+        return "redis-server in pid: {pid}, requirepass {auth}, with args {command_args}, numa node: {numa_node_id}".format(
             pid=self.pid,
+            auth=self.auth,
             command_args=self.command_args,
             numa_node_id=self.numa_node_id
         )
