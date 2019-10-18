@@ -82,16 +82,16 @@ def parsenumactl():
 # Python redis process list parsing
 
 def parse_redis_processlist(redis_str):
-    process = subprocess.Popen(['ps -e | grep ' + redis_str], shell=True, stdout=subprocess.PIPE)
+    process = subprocess.Popen(['ps -ef | grep ' + redis_str], shell=True, stdout=subprocess.PIPE)
 
     vmraw_list = process.communicate()
     vmraw_list = str.splitlines(vmraw_list[0])
     redis_dict = {}
     for index in range(len(vmraw_list)):
         row = str.split(vmraw_list[index])
-        pid = row[0]
-        conf = row[3:]
-        if redis_str in row[3] and pid != process.pid:
+        pid = row[1]
+        conf = row[7:]
+        if redis_str in row[7] and pid != process.pid:
             redis_dict[index] = RedisProcessInfo(pid, pid, conf)
 
     return redis_dict
