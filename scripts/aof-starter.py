@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/opt/redislabs/bin/python
 # Redis Balancer for NUMA Class Systems
 # Python 2.7.X
 # Based on scripts from Nail Sirazitdinov and Shankhadeep Shome
@@ -289,9 +289,9 @@ if __name__ == "__main__":
                 random_pos = random.randint(0,len(aof_pids)-1)
                 random_redis_pid = aof_pids.pop(random_pos)
                 redis = redis_dict[random_redis_pid]
-                cmd = 'redis-cli -p {} '.format(redis.port,redis.auth)
+                cmd = 'redis-cli -p {} '.format(redis.port)
                 if redis.auth is not None:
-                    cmd= cmd + '-a {} '
+                    cmd= cmd + '-a {} '.format(redis.auth)
                 cmd = cmd + 'BGREWRITEAOF'
                 print cmd
                 process = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
