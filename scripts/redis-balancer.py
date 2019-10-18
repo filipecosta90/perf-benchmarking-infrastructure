@@ -58,7 +58,7 @@ class RedisProcessInfo:
         self.conf_file_lines = []
         self.auth = auth
         self.affinity_list = affinity_list
-        self.current_psr = parse_pid_psr(processid)
+        # self.current_psr = None parse_pid_psr(processid)
 
         for v in command_args:
             if ".conf" in v:
@@ -135,7 +135,7 @@ def parse_dmc_processlist(process_grep_str):
     process_dict = {}
     for index in range(len(vmraw_list)):
         row = str.split(vmraw_list[index])
-        pid = row[1]
+        pid = row[2]
         if pid != process.pid:
             process_dict[pid] = ProcessInfo(pid)
 
@@ -181,17 +181,6 @@ def required_utilities(utility_list):
     return required_utilities
 
 
-# Checks if VM processid is a member of a numa_node set
-
-def member_of_numa_node(processid, node_number):
-    runcmd = 'cset proc -l VMBS' + node_number + ' | tail -n +4 | grep ' + processid
-    process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-    if len(process.communicate()[0]) > 0:
-        return 1
-    else:
-        return 0
-
-
 # Add a process and it's threads to a cpuset
 
 def taskset_numa_process(processid, numa_cpus):
@@ -200,10 +189,9 @@ def taskset_numa_process(processid, numa_cpus):
         for cpu_num in numa_cpus[1:]:
             numa_cpus_str = numa_cpus_str + ",{}".format(cpu_num)
         runcmd = 'taskset -apc {numa_cpus} {processid}'.format(numa_cpus=numa_cpus_str, processid=processid)
-        print runcmd
+        print "\t\t{}".format(runcmd)
         process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        # for index in (str.splitlines(process.communicate()[0])):
-        #     print index
+        output = process.communicate()
         return 1
     else:
         return 0
@@ -212,12 +200,13 @@ def taskset_numa_process(processid, numa_cpus):
 def migratepages_numa_process(processid, from_nodes, to_nodes):
     runcmd = 'migratepages {processid} {from_nodes} {to_nodes}'.format(to_nodes=to_nodes, from_nodes=from_nodes,
                                                                        processid=processid)
-    print runcmd
+    print "\t\t{}".format(runcmd)
     process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
+    output = process.communicate()
     return 1
 
 
-def process_rebalancer(numa_list, redis_dict):
+def process_rebalancer(numa_list, redis_dict, debug=0):
     # sort the pid list
     redis_pids = redis_dict.keys()
     redis_pids.sort()
@@ -239,11 +228,12 @@ def process_rebalancer(numa_list, redis_dict):
         while nelems > 0 and len(redis_pids) > 0:
             pid = redis_pids.pop(0)
             nelems = nelems - 1
-            print "\tsetting Process with pid {pid} affinity to numa node {nodeid} with cpu's({cpulist})".format(
-                pid=pid,
-                nodeid=node_number,
-                cpulist=cpu_list
-            )
+            if debug > 2:
+                print "\tSetting Process with pid {pid} affinity to numa node {nodeid} with cpu's({cpulist})".format(
+                    pid=pid,
+                    nodeid=node_number,
+                    cpulist=cpu_list
+                )
             taskset_numa_process(pid, cpu_list)
             migratepages_numa_process(pid, "all", node_number)
 
