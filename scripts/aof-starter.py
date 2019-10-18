@@ -8,10 +8,10 @@ import math
 import os
 import subprocess
 import sys
-import redis
 import time
 import string
-
+import random
+import copy
 
 # Locating programs in Python, use the following snip to locate programs in python from http://jimmyg.org/blog/2009/working-with-python-subprocess.html
 
@@ -259,7 +259,8 @@ if __name__ == "__main__":
                         help='number of different BGREWRITEAOF issued on aof test')
     parser.add_argument('--redis_grep', type=str, default="redis-server", help='string used to grep after ps')
     args = parser.parse_args()
-
+    print 'Using random seed {}'.format(args.random_seed)
+    random.seed(args.random_seed)
     print 'Reading Redis info'
     redis_dict = parse_redis_processlist(args.redis_grep)
     if len(redis_dict.keys()) < 1:
@@ -275,11 +276,27 @@ if __name__ == "__main__":
 
     aof_setups = string.split(args.aofs_concurrent_number, ",")
     for aof_setup in aof_setups:
-        if int(aof_setup) > available_redis:
+        n_aofs=int(aof_setup)
+        temp_n_aofs = n_aofs
+        if n_aofs > available_redis:
             print 'You\'re asking for {} concurrent BGREWRITEAOF but we only have {} redis instances'.format(aof_setup,available_redis)
             sys.exit(0)
         else:
             print 'Starting {} BGREWRITEAOF\'s at ms - {}'.format(aof_setup, int(round(time.time() * 1000)))
+            aof_pids = copy.deepcopy(redis_pids)
+            while temp_n_aofs > 0:
+                temp_n_aofs = temp_n_aofs - 1
+                random_pos = random.randint(0,len(aof_pids)-1)
+                random_redis_pid = aof_pids.pop(random_pos)
+                redis = redis_dict[random_redis_pid]
+                cmd = 'redis-cli -p {} '.format(redis.port,redis.auth)
+                if redis.auth is not None:
+                    cmd= cmd + '-a {} '
+                cmd = cmd + 'BGREWRITEAOF'
+                print cmd
+                process = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
+                output = process.communicate()
+
             # WORK
             time.sleep(args.between_aofs_interval_secs)
 
