@@ -176,6 +176,8 @@ def redis_rebalancer(numa_list, redis_dict):
     # sort the redis pid list
     redis_pids = redis_dict.keys().sort()
     numa_node_ids = numa_list.keys()
+    print redis_pids
+    print numa_node_ids
     rediss_per_numa = math.ceil(len(numa_node_ids) % (len(redis_pids)))
     print "will split {nredis} redis pids among {nnodes} numa nodes. {per_node} redis's per numa node".format(
         nredis=redis_pids,
