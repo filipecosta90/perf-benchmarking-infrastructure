@@ -115,8 +115,8 @@ def parse_pid_psr(processid):
 
     vmraw_list = process.communicate()
     vmraw_list = str.splitlines(vmraw_list[0])
-    if len(vmraw_list) > 0:
-        psr = vmraw_list[0]
+    if len(vmraw_list) > 1:
+        psr = vmraw_list[1]
 
     print "@@@@" + psr
     return psr
@@ -161,11 +161,18 @@ def member_of_numa_node(processid, node_number):
 # Add a process and it's threads to a cpuset
 
 def taskset_numa_process(processid, numa_cpus):
-    runcmd = 'taskset -apc {numa_cpus} {processid}'.format()
-    process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-    # for index in (str.splitlines(process.communicate()[0])):
-    #     print index
-    return 1
+    if len(numa_cpus) > 0:
+        numa_cpus_str = "{}".format(numa_cpus[0])
+        for cpu_num in numa_cpus[1:]:
+            numa_cpus_str = numa_cpus_str + ",{}".format(cpu_num)
+        runcmd = 'taskset -apc {numa_cpus} {processid}'.format(numa_cpus=numa_cpus_str,processid=processid)
+        print runcmd
+        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
+        # for index in (str.splitlines(process.communicate()[0])):
+        #     print index
+        return 1
+    else:
+        return 0
 
 
 # Main Function
@@ -199,6 +206,7 @@ def redis_rebalancer(numa_list, redis_dict):
                 nodeid=node_number,
                 cpulist=cpu_list
             )
+            taskset_numa_process(pid,cpu_list)
 
     # self.node_number = node_number
     # self.cpu_list = cpu_list
