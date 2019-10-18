@@ -174,6 +174,11 @@ def taskset_numa_process(processid, numa_cpus):
     else:
         return 0
 
+def migratepages_numa_process(processid, from_nodes, to_nodes):
+    runcmd = 'migratepages {processid} {from_nodes},{to_nodes}'.format(to_nodes=to_nodes,from_nodes=from_nodes,processid=processid)
+    print runcmd
+    process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
+    return 1
 
 # Main Function
 REDIS_NAME = "redis-server"
@@ -207,6 +212,7 @@ def redis_rebalancer(numa_list, redis_dict):
                 cpulist=cpu_list
             )
             taskset_numa_process(pid,cpu_list)
+            migratepages_numa_process(pid,"all",node_number)
 
     # self.node_number = node_number
     # self.cpu_list = cpu_list
