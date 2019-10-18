@@ -68,7 +68,7 @@ class RedisProcessInfo:
             self.read_conf_file(self.conf_file_name)
 
     def read_conf_file(self, filename):
-        print "reading {}".format(filename)
+        print "\t\treading {}".format(filename)
         f = open(filename, "r")
         if f.mode == 'r':
             self.conf_file_lines = f.readlines()
@@ -211,8 +211,6 @@ def process_rebalancer(numa_list, redis_dict, debug=0):
     redis_pids = redis_dict.keys()
     redis_pids.sort()
     numa_node_ids = numa_list.keys()
-    print redis_pids
-    print numa_node_ids
     nredis = len(redis_pids)
     nnodes = len(numa_node_ids)
     rediss_per_numa = math.ceil(nredis / nnodes)
@@ -266,6 +264,7 @@ if __name__ == "__main__":
     #### Real Work
 
     if args.balance_redis is True:
+        print 'Reading Redis info'
         redis_dict = parse_redis_processlist(args.redis_grep)
         if len(redis_dict.keys()) < 1:
             print 'No {} running. Exiting..'.format(args.redis_grep)
