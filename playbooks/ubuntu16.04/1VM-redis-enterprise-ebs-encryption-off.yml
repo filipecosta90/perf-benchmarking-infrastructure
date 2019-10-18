@@ -36,7 +36,7 @@
         db_redis_port: 12000
         db_evict_policy: 'disabled'
         db_persistence: 'aof'
-        db_aof_policy: 'appendfsync-always'
+        db_aof_policy: 'appendfsync-every-sec'
     - re_run_install: True
     - re_run_uninstall: False
     - re_run_createdatabase: True
