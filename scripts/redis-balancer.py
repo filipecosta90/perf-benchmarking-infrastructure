@@ -174,9 +174,9 @@ REDIS_NAME = "redis-server"
 
 def redis_rebalancer(numa_list, redis_dict):
     # sort the redis pid list
-    redis_pids = redis_dict.keys().sort()
+    redis_pids = redis_dict.keys()
+    redis_pids.sort()
     numa_node_ids = numa_list.keys()
-    print redis_dict.keys()
     print redis_pids
     print numa_node_ids
     rediss_per_numa = math.ceil(len(redis_pids) / len(numa_node_ids))
@@ -184,6 +184,7 @@ def redis_rebalancer(numa_list, redis_dict):
         nredis=redis_pids,
         nnodes=rediss_per_numa,
         per_node=rediss_per_numa)
+
     for id in numa_node_ids:
         nelems = rediss_per_numa
         numa_cpus = numa_list[id]
