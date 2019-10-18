@@ -21,8 +21,8 @@ def whereis(program):
 
 class NumaNode:
 	def __init__(self,node_number,cpu_list,memorysize,memoryfree,processcount):
-        	self.node_number = node_number
-        	self.cpu_list = cpu_list
+        self.node_number = node_number
+        self.cpu_list = cpu_list
 		self.memorysize = memorysize
 		self.memoryfree = memoryfree
 		self.processcount = processcount
@@ -72,7 +72,7 @@ def parse_vmlist(libvirt_run_dir):
 	
 #Python redis process list parsing
 
-def parseredisprocesslist():
+def parse_redis_processlist():
 	process = subprocess.Popen(['ps -e | grep redis-server-5'], shell=True, stdout=subprocess.PIPE)
 	vmraw_list = process.communicate()
 	vmraw_list = str.splitlines(vmraw_list[0])
@@ -281,7 +281,10 @@ if __name__=="__main__":
 	if len(numa_list) < 2:
 		print 'Cannot parse numactl properly'
                 sys.exit(1)
-	print numa_list
+	print numa_list[0].node_number
+	print numa_list[0].cpu_list
+	redis_list = parse_redis_processlist()
+	print redis_list
 	# # Create cpu sets
 	# if create_cset(numa_list) == 0:
 	# 	print 'Program Error: could not create cpu sets using cset, see cset documentation for furthur details'
