@@ -269,7 +269,7 @@ if __name__ == "__main__":
         redis_dict = parse_redis_processlist(args.redis_grep)
         if len(redis_dict.keys()) < 1:
             print 'No {} running. Exiting..'.format(args.redis_grep)
-
+        print 'Balancing Redis'
         if process_rebalancer(numa_list, redis_dict) == 0:
             print 'Redis Rebalancer failed to execute properly'
             sys.exit(1)
@@ -278,7 +278,7 @@ if __name__ == "__main__":
         dmc_dict = parse_dmc_processlist(dmc_grep)
         if len(dmc_dict.keys()) < 1:
             print 'No dmc {} running. Exiting..'.format(dmc_grep)
-
+        print 'Balancing DMC'
         if process_rebalancer(numa_list, dmc_dict) == 0:
             print 'DMC Rebalancer failed to execute properly'
             sys.exit(1)
