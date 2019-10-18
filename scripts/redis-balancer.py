@@ -103,7 +103,7 @@ def parse_redis_processlist(redis_str):
         pid = row[1]
         conf = row[7:]
         if redis_str in row[7] and pid != process.pid:
-            redis_dict[index] = RedisProcessInfo(pid, pid, conf)
+            redis_dict[pid] = RedisProcessInfo(pid, pid, conf)
 
     return redis_dict
 
