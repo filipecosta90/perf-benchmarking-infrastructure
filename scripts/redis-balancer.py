@@ -175,7 +175,7 @@ def taskset_numa_process(processid, numa_cpus):
         return 0
 
 def migratepages_numa_process(processid, from_nodes, to_nodes):
-    runcmd = 'migratepages {processid} {from_nodes},{to_nodes}'.format(to_nodes=to_nodes,from_nodes=from_nodes,processid=processid)
+    runcmd = 'migratepages {processid} {from_nodes} {to_nodes}'.format(to_nodes=to_nodes,from_nodes=from_nodes,processid=processid)
     print runcmd
     process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
     return 1
