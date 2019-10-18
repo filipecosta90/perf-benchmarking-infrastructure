@@ -3,7 +3,7 @@
 # Python 2.7.X
 # Based on scripts from Nail Sirazitdinov and Shankhadeep Shome
 # Version 0.1
-
+import math
 import os
 import subprocess
 import sys
@@ -31,15 +31,18 @@ class NumaNode:
 
 
 class RedisProcessInfo:
-    def __init__(self, redis_name, processid, command_args):
+    def __init__(self, redis_name, processid, command_args, conf_file_name=None, auth=None, numa_node_id=-1,
+                 affinity_list=None):
         self.redis_name = redis_name
         self.pid = processid
         self.command_args = command_args
         self.bind = -1
-        self.numa_node_id = -1
-        self.conf_file_name = None
+        self.numa_node_id = numa_node_id
+        self.conf_file_name = conf_file_name
         self.conf_file_lines = []
-        self.auth = None
+        self.auth = auth
+        self.affinity_list = affinity_list
+        self.current_psr = parse_pid_psr(processid)
 
         for v in command_args:
             if ".conf" in v:
@@ -53,14 +56,11 @@ class RedisProcessInfo:
         f = open(filename, "r")
         if f.mode == 'r':
             self.conf_file_lines = f.readlines()
-            #print self.conf_file_lines
+            # print self.conf_file_lines
 
         for v in self.conf_file_lines:
             if "requirepass" in v:
                 self.auth = str.split(v)[1]
-
-        # print "requirepass {}".format(self.auth)
-
 
     def __str__(self):
         return "redis-server in pid: {pid}, requirepass {auth}, with args {command_args}, numa node: {numa_node_id}".format(
@@ -108,62 +108,18 @@ def parse_redis_processlist(redis_str):
     return redis_dict
 
 
-# Python kvm cset parsing, returns all the cset processes for a list of numa nodes
+#  Check the processor that process is currently assigned to.
+def parse_pid_psr(processid):
+    psr = None
+    process = subprocess.Popen(['ps -o psr -p ' + processid], shell=True, stdout=subprocess.PIPE)
 
-def parse_cset(node_list):
-    process_list = []
-    for index in range(len(node_list)):
-        runcmd = 'cset proc -l VMBS' + node_list[index].node_number + ' | tail -n +4'
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        for index in str.splitlines(process.communicate()[0]):
-            process_list.append(str.split(index)[1])
-    return process_list
+    vmraw_list = process.communicate()
+    vmraw_list = str.splitlines(vmraw_list[0])
+    if len(vmraw_list) > 0:
+        psr = vmraw_list[0]
 
-
-# Returns the number of processes in the node list
-
-def parse_cset_processcount(node_list):
-    for index in range(len(node_list)):
-        runcmd = 'cset proc -l VMBS' + node_list[index].node_number + ' | tail -n +4 | wc -l'
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        node_list[index].processcount = int(str.splitlines(process.communicate()[0])[0])
-    return node_list
-
-
-# Returns the number of vcpus in the node list, using virsh to extract the vcpus per VM
-
-def parse_cset_processcount_vcpu(node_list, virsh_vm_list):
-    for index in range(len(node_list)):
-        for index2 in range(len(virsh_vm_list)):
-            runcmd = 'cset proc -l VMBS' + node_list[index].node_number + ' | tail -n +4 | grep ' + virsh_vm_list[
-                index2].processid + ' | wc -l'
-            process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-            if int(str.splitlines(process.communicate()[0])[0]) > 0:
-                node_list[index].processcount += int(virsh_vm_list[index2].vcpu_num)
-    return node_list
-
-
-# Python create csets, create the proper set, if they exist they just get modified by cset
-
-def create_cset(node_list):
-    for index in range(len(node_list)):
-        runcmd = '/usr/bin/cset set -c ' + (','.join(node_list[index].cpu_list)) + ' -m ' + node_list[
-            index].node_number + ' -s VMBS' + node_list[index].node_number
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        for index in (str.splitlines(process.communicate()[0])):
-            print index
-    return 1
-
-
-# delete VM balancer csets and return processes to the parents
-
-def delete_cset(node_list):
-    for index in range(len(node_list)):
-        runcmd = '/usr/bin/cset set -d -s VMBS' + node_list[index].node_number
-        process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-        for index in (str.splitlines(process.communicate()[0])):
-            print index
-    return 1
+    print "@@@@" + psr
+    return psr
 
 
 # Checks if system is configured for numa
@@ -204,121 +160,62 @@ def member_of_numa_node(processid, node_number):
 
 # Add a process and it's threads to a cpuset
 
-def addkvmprocess(processid, numa_node):
-    runcmd = 'cset proc --move ' + processid + ' VMBS' + numa_node + ' --threads'
+def taskset_numa_process(processid, numa_cpus):
+    runcmd = 'taskset -apc {numa_cpus} {processid}'.format()
     process = subprocess.Popen([runcmd], shell=True, stdout=subprocess.PIPE)
-    for index in (str.splitlines(process.communicate()[0])):
-        print index
-    return 1
-
-
-# Returns sorted list of numa nodes and their process counts for scheduling
-
-def sorted_process_count_list(node_list):
-    sorted_list = []
-    for index in range(len(node_list)):
-        sorted_list.append([node_list[index].node_number, node_list[index].processcount])
-    sorted_list = sorted(sorted_list, key=lambda element: element[1])
-    return sorted_list
-
-
-# Rebalancer maximizes cpu usage. First place all newly instantiated VM processes
-# into the cpusets. Then rebalance one of the existing VMs if nessesary 
-# (run multiple times for full rebalance, there is a configured threshold so
-# VMs aren't swapped back and forth between two nodes)
-
-def vm_rebalancer_cpu(node_list, virsh_vm_list):
-    raw_vm_list = parsekvmprocesslist()
-    cset_process_list = parse_cset(node_list)
-    vm_list_unshielded = list(set(raw_vm_list) - set(cset_process_list))
-    vm_list_shielded = list(set(raw_vm_list) & set(cset_process_list))
-    # Add new kvm processes into the cpusets
-    for index in vm_list_unshielded:
-        node_list = parse_cset_processcount_vcpu(node_list, virsh_vm_list)
-        sorted_node_list = sorted_process_count_list(node_list)
-        addkvmprocess(index, sorted_node_list.pop(0)[0])
-    # Update the process count on each numa node and re-sort
-    node_list = parse_cset_processcount_vcpu(node_list, virsh_vm_list)
-    sorted_node_list = sorted_process_count_list(node_list)
-    # Move a single shielded process group from the most used node to the least used node
-    # if it meets the threshold, which is twice the number of cpus in the most used node.
-    # This way its more likely that cpu nodes with more processors will tend to hold on to
-    # their VM processes longer. By moving only one active VM per sheduling run, the admin
-    # has better control over the process.
-    most_used_node = sorted_node_list.pop()
-    least_used_node = sorted_node_list.pop(0)
-    if (most_used_node[1] - least_used_node[1]) > (2 * len(node_list[int(most_used_node[0])].cpu_list)):
-        for index in vm_list_shielded:
-            if member_of_numa_node(index, most_used_node[0]) == 1:
-                addkvmprocess(index, least_used_node[0])
-                break
-    return 1
-
-
-# Same as above but only schedules up to a max(num. of numa nodes) vm processes per scheduling run
-
-def vm_rebalancer_cpu_fast(node_list, virsh_vm_list):
-    raw_vm_list = parsekvmprocesslist()
-    cset_process_list = parse_cset(node_list)
-    vm_list_unshielded = list(set(raw_vm_list) - set(cset_process_list))
-    vm_list_shielded = list(set(raw_vm_list) & set(cset_process_list))
-    node_list = parse_cset_processcount_vcpu(node_list, virsh_vm_list)
-    sorted_node_list = sorted_process_count_list(node_list)
-    # Add new kvm processes into the cpusets
-    for index in vm_list_unshielded:
-        if len(sorted_node_list) > 0:
-            addkvmprocess(index, sorted_node_list.pop(0)[0])
-    # Update the process count on each numa node and re-sort
-    node_list = parse_cset_processcount_vcpu(node_list, virsh_vm_list)
-    sorted_node_list = sorted_process_count_list(node_list)
-    # Move a single shielded process group from the most used node to the least used node
-    # if it meets the threshold, which is twice the number of cpus in the most used node.
-    # This way its more likely that cpu nodes with more processors will tend to hold on to
-    # their VM processes longer. By moving only one active VM per sheduling run, the admin
-    # has better control over the process.
-    most_used_node = sorted_node_list.pop()
-    least_used_node = sorted_node_list.pop(0)
-    if (most_used_node[1] - least_used_node[1]) > (2 * len(node_list[int(most_used_node[0])].cpu_list)):
-        for index in vm_list_shielded:
-            if member_of_numa_node(index, most_used_node[0]) == 1:
-                addkvmprocess(index, least_used_node[0])
-                break
-    return 1
-
-
-# Rebalancer that maximizes memory usage, placeholder for some memory centric rebalancer
-
-def vm_rebalancer_memory(numa_list):
-    return 1
-
-
-# Rebalance function and wrapper
-
-def vm_rebalancer(numa_node, rebalance_type, virsh_vm_list):
-    if rebalance_type == 'cpu_balancer':
-        vm_rebalancer_cpu(numa_node, virsh_vm_list)
-    elif rebalance_type == 'cpu_balancer_fast':
-        vm_rebalancer_cpu_fast(numa_node, virsh_vm_list)
-    elif rebalance_type == 'mem_maximizer':
-        vm_rebalancer_mem(numa_node)
-    else:
-        print 'Unknown balancer type'
-        return 0
+    # for index in (str.splitlines(process.communicate()[0])):
+    #     print index
     return 1
 
 
 # Main Function
+REDIS_NAME = "redis-server"
+
+
+def redis_rebalancer(numa_list, redis_dict):
+    # sort the redis pid list
+    redis_pids = redis_dict.keys().sort()
+    numa_node_ids = numa_list.keys()
+    rediss_per_numa = math.ceil(len(numa_node_ids) % (len(redis_pids)))
+    print "will split {nredis} redis pids among {nnodes} numa nodes. {per_node} redis's per numa node".format(
+        nredis=redis_pids,
+        nnodes=rediss_per_numa,
+        per_node=rediss_per_numa)
+    for id in numa_node_ids:
+        nelems = rediss_per_numa
+        numa_cpus = numa_list[id]
+        while nelems > 0 and len(redis_pids) > 0:
+            pid = redis_pids.pop(0)
+            nelems = nelems - 1
+            print "setting redis with pid {pid} affinity to numa node {nodeid} with cpu's({cpulist})".format(
+                pid=pid,
+                nodeid=id,
+                cpulist=numa_cpus
+            )
+
+    # self.node_number = node_number
+    # self.cpu_list = cpu_list
+    # self.memorysize = memorysize
+    # self.memoryfree = memoryfree
+    # self.processcount = processcount
+    #
+    return 1
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         print 'Utility does not take arguments.. yet'
         sys.exit(1)
 
-    redis_dict = parse_redis_processlist("redis-server")
+    redis_dict = parse_redis_processlist(REDIS_NAME)
     for k, v in redis_dict.items():
         print v
 
-    if required_utilities(['taskset', 'numactl', 'chrt']) == 0:
+    if len(redis_dict.keys()) < 1:
+        print 'No {} running. Exiting..'.format(REDIS_NAME)
+        sys.exit(1)
+
+    if required_utilities(['taskset', 'numactl', 'chrt', 'migratepages']) == 0:
         print 'Utilities Missing! Exiting..'
         sys.exit(1)
     if numa_capable() == 0:
@@ -329,8 +226,6 @@ if __name__ == "__main__":
     if len(numa_list) < 2:
         print 'Cannot parse numactl properly'
         sys.exit(1)
-    print numa_list[0].node_number
-    print numa_list[0].cpu_list
 
     # # Create cpu sets
     # if create_cset(numa_list) == 0:
@@ -342,7 +237,8 @@ if __name__ == "__main__":
     # 	print 'No running VMs using libvirt'
     # 	sys.exit(0)
     # # Run vm_rebalancer
-    # if vm_rebalancer(numa_list, 'cpu_balancer_fast', virsh_vm_list) == 0:
-    # 	print 'Rebalancer failed to execute properly'
-    #             sys.exit(1)
-    sys.exit(0)
+    if redis_rebalancer(numa_list, redis_dict) == 0:
+        print 'Redis Rebalancer failed to execute properly'
+        sys.exit(1)
+
+sys.exit(0)
