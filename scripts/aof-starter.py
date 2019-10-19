@@ -8,7 +8,10 @@ import math
 import os
 import subprocess
 import sys
-
+import time
+import string
+import random
+import copy
 
 # Locating programs in Python, use the following snip to locate programs in python from http://jimmyg.org/blog/2009/working-with-python-subprocess.html
 
@@ -58,6 +61,7 @@ class RedisProcessInfo:
         self.conf_file_lines = []
         self.auth = auth
         self.affinity_list = affinity_list
+        self.port = 6379
         # self.current_psr = None parse_pid_psr(processid)
 
         for v in command_args:
@@ -77,6 +81,9 @@ class RedisProcessInfo:
         for v in self.conf_file_lines:
             if "requirepass" in v:
                 self.auth = str.split(v)[1]
+
+            if "port" in v:
+                self.port = str.split(v)[1]
 
     def __str__(self):
         return "redis-server in pid: {pid}, requirepass {auth}, with args {command_args}, numa node: {numa_node_id}".format(
@@ -240,46 +247,57 @@ def process_rebalancer(numa_list, redis_dict, debug=0):
 
 # Main Function
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Redis Balancer for NUMA Class Systems.')
-    parser.add_argument('--balance_redis', default=False, action='store_true')
-    parser.add_argument('--balance_dmc', default=False, action='store_true')
+    parser = argparse.ArgumentParser(description='Redis Rewriting/compacting append-only files trigger.')
+
+    parser.add_argument('--no_aof_time_secs', type=int, default=300,
+                        help='Time prior to instruct Redis to start an Append Only File rewrite process.')
+    parser.add_argument('--random_seed', type=int, default=12345,
+                        help='Random seed used to select one of the available redis hosts.')
+    parser.add_argument('--between_aofs_interval_secs', type=int, default=300,
+                        help='Time between two BGREWRITEAOF commands.')
+    parser.add_argument('--aofs_concurrent_number', type=str, default="1,2,4,8,16,32",
+                        help='number of different BGREWRITEAOF issued on aof test')
     parser.add_argument('--redis_grep', type=str, default="redis-server", help='string used to grep after ps')
     args = parser.parse_args()
-    dmc_grep = "worker"
+    print 'Using random seed {}'.format(args.random_seed)
+    random.seed(args.random_seed)
+    print 'Reading Redis info'
+    redis_dict = parse_redis_processlist(args.redis_grep)
+    if len(redis_dict.keys()) < 1:
+        print 'No {} running. Exiting..'.format(args.redis_grep)
 
-    if required_utilities(['taskset', 'numactl', 'chrt', 'migratepages']) == 0:
-        print 'Utilities Missing! Exiting..'
-        sys.exit(1)
+    redis_pids = redis_dict.keys()
+    redis_pids.sort()
+    available_redis = len(redis_pids)
 
-    if numa_capable() == 0:
-        print 'Machine not numa capable or memory is not configured with a numa layout'
-        sys.exit(1)
+    print 'Starting NO BGREWRITEAOF time at ms - {}'.format(int(round(time.time() * 1000)))
+    # Wait for --no_aof_time_secs seconds
+    time.sleep(args.no_aof_time_secs)
 
-    # Parse numactl, the resulting dictionary should always be greater than 2
-    numa_list = parsenumactl()
-    if len(numa_list) < 2:
-        print 'Cannot parse numactl properly'
-        sys.exit(1)
+    aof_setups = string.split(args.aofs_concurrent_number, ",")
+    for aof_setup in aof_setups:
+        n_aofs=int(aof_setup)
+        temp_n_aofs = n_aofs
+        if n_aofs > available_redis:
+            print 'You\'re asking for {} concurrent BGREWRITEAOF but we only have {} redis instances'.format(aof_setup,available_redis)
+            sys.exit(0)
+        else:
+            print 'Starting {} BGREWRITEAOF\'s at ms - {}'.format(aof_setup, int(round(time.time() * 1000)))
+            aof_pids = copy.deepcopy(redis_pids)
+            while temp_n_aofs > 0:
+                temp_n_aofs = temp_n_aofs - 1
+                random_pos = random.randint(0,len(aof_pids)-1)
+                random_redis_pid = aof_pids.pop(random_pos)
+                redis = redis_dict[random_redis_pid]
+                cmd = 'redis-cli -p {} '.format(redis.port)
+                if redis.auth is not None:
+                    cmd= cmd + '-a {} '.format(redis.auth)
+                cmd = cmd + 'BGREWRITEAOF'
+                print cmd
+                process = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE)
+                output = process.communicate()
 
-    #### Real Work
-
-    if args.balance_redis is True:
-        print 'Reading Redis info'
-        redis_dict = parse_redis_processlist(args.redis_grep)
-        if len(redis_dict.keys()) < 1:
-            print 'No {} running. Exiting..'.format(args.redis_grep)
-        print 'Balancing Redis'
-        if process_rebalancer(numa_list, redis_dict) == 0:
-            print 'Redis Rebalancer failed to execute properly'
-            sys.exit(1)
-
-    if args.balance_dmc is True:
-        dmc_dict = parse_dmc_processlist(dmc_grep)
-        if len(dmc_dict.keys()) < 1:
-            print 'No dmc {} running. Exiting..'.format(dmc_grep)
-        print 'Balancing DMC'
-        if process_rebalancer(numa_list, dmc_dict) == 0:
-            print 'DMC Rebalancer failed to execute properly'
-            sys.exit(1)
+            # WORK
+            time.sleep(args.between_aofs_interval_secs)
 
 sys.exit(0)
