@@ -14,3 +14,9 @@
       path: /etc/netdata/netdata.conf
       regexp: '# default port = 19999'
       line: default port = 49999
+
+  - name: Ensure retention period is set to 86400 seconds ( 1 day )
+    lineinfile:
+      path: /etc/netdata/netdata.conf
+      regexp: '# history = 3600'
+      line: history = 86400
