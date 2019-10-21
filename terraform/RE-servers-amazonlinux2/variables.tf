@@ -38,6 +38,7 @@ variable "availability_zone" {
   description = "availability zone to create subnet"
   default     = "us-east-2a"
 }
+
 variable "instance_ami" {
   description = "AMI for aws EC2 instance"
   default     = "ami-0d8f6eb4f641ef691"
@@ -47,7 +48,6 @@ variable "instance_device_name" {
   description = "EC2 instance device name"
   default     = "/dev/xvda"
 }
-
 
 variable "redis_module" {
  description = "redis_module"
@@ -61,7 +61,7 @@ variable "instance_volume_size" {
 
 variable "instance_volume_iops" {
     description = "EC2 instance volume_iops"
-  default = "500"
+  default = "100"
 }
 
 variable "instance_volume_type" {
@@ -74,10 +74,6 @@ variable "instance_type" {
   default     = "c5.18xlarge"
 }
 
-variable "instance_type_5m" {
-  description = "type for aws EC2 instance"
-  default     = ".18xlarge"
-}
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"

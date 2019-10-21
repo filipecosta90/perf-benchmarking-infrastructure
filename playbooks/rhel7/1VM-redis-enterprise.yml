@@ -12,6 +12,10 @@
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
     - re_cluster_name: 'cluster-1VM-rhel7'
+    - re_version: '5.4.6'
+    - re_version_build: '18'
+    - re_proxy_max_threads: 26
+    - re_proxy_threads: 26
     - re_databases:
       - db_name: 'perf-db'
         db_password: ''
@@ -34,6 +38,7 @@
         db_aof_policy: 'appendfsync-every-sec'
     - re_run_install: True
     - re_run_createdatabase: True
+    - re_run_rladmin: True
   
   roles:
     - ansible-redis-enterprise

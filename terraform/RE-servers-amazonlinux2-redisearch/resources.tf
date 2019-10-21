@@ -132,9 +132,9 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   ###################
   # Install netdata #
   ###################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
-  }
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+  # }
 
   ################################################################################
   # Redis Enterprise related
@@ -157,13 +157,13 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise.yml -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise-redisearch.yml -i ${self.public_ip}.inv"
   }
 
   ###############################################
-  # Remove inventory file #
+  # Remove any inventory file #
   ###############################################
   provisioner "local-exec" {
-    command = "rm ${self.public_ip}.inv"
+    command = "rm *.inv"
   }
 }

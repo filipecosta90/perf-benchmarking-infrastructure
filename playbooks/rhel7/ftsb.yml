@@ -1,0 +1,48 @@
+---
+- name: Install FTSB
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    aibench_root_dir: $GOPATH/src/github.com/RediSearch/ftsb
+  tasks:
+  - name: Install golang package
+    yum:
+      name: golang
+      state: present
+
+  - name: modify .bashrc
+    become: yes
+    blockinfile:
+      dest: "~/.bashrc"
+      block: |
+        export GOPATH=$HOME/go
+        export GOBIN=$GOPATH/bin
+        export PATH=$GOBIN:$PATH:/usr/local/go/bin
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for golang'
+      insertafter: EOF
+      create: yes
+
+  # - name: go get github.com/RediSearch/ftsb
+  #   become: yes
+  #   command: go get -v github.com/RediSearch/ftsb
+
+  # - name: Go install ftsb ftsb_generate_data
+  #   become: yes
+  #   command: go install github.com/RediSearch/ftsb/cmd/ftsb_generate_data
+
+  # - name: Go install ftsb ftsb_load_redisearch
+  #   become: yes
+  #   command: go install github.com/RediSearch/ftsb/cmd/ftsb_load_redisearch
+
+  # - name: Go install ftsb ftsb_generate_queries
+  #   become: yes
+  #   command: go install github.com/RediSearch/ftsb/cmd/ftsb_generate_queries
+
+  # - name: Go install ftsb ftsb_run_queries_redisearch
+  #   become: yes
+  #   command: go install github.com/RediSearch/ftsb/cmd/ftsb_run_queries_redisearch
+
+  
