@@ -21,9 +21,9 @@ terraform {
 }
 
 resource "aws_network_interface" "perf_cto_server_c5n_9xlarge_network_interface" {
-  count           = "${var.instance_network_interface_plus_count}"
+  count = "${var.instance_network_interface_plus_count}"
 
-  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
+  subnet_id       = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
   security_groups = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
 
   attachment {
@@ -32,9 +32,9 @@ resource "aws_network_interface" "perf_cto_server_c5n_9xlarge_network_interface"
   }
 
   tags = {
-    Name = "eni-${var.setup_name}-${count.index + 2}"
+    Name        = "eni-${var.setup_name}-${count.index + 2}"
     RedisModule = "${var.redis_module}"
-  } 
+  }
 
 }
 
@@ -46,11 +46,11 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
-  cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
-  placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
-  private_ip = "10.3.0.${count.index + 60}"
+  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core_hyperthreading}"
+  placement_group        = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
-root_block_device {
+
+  root_block_device {
     volume_size           = "${var.instance_volume_size}"
     volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
@@ -85,7 +85,7 @@ root_block_device {
   ################################################################################
   # performance related
   ################################################################################
-  
+
   #################
   # EC2 CONFIGURE #
   #################

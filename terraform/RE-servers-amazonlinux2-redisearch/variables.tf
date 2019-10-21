@@ -6,22 +6,22 @@ variable "region" {
 
 variable "setup_name" {
   description = "setup name"
-  default = "perf-cto-RE-servers-amazonlinux2-redisearch"
+  default     = "perf-cto-RE-servers-amazonlinux2-redisearch"
 }
 
 
 variable "redis_module" {
- description = "redis_module"
+  description = "redis_module"
   default     = "RediSearch"
 }
 
 variable "os" {
- description = "os"
+  description = "os"
   default     = "rhel7"
 }
 
 variable "ssh_user" {
- description = "ssh_user"
+  description = "ssh_user"
   default     = "ec2-user"
 }
 
@@ -55,8 +55,8 @@ variable "instance_device_name" {
 }
 
 variable "instance_volume_size" {
-    description = "EC2 instance volume_size"
-  default = "128"
+  description = "EC2 instance volume_size"
+  default     = "128"
 }
 
 variable "instance_volume_encrypted" {
@@ -65,23 +65,18 @@ variable "instance_volume_encrypted" {
 }
 
 variable "instance_volume_iops" {
-    description = "EC2 instance volume_iops"
-  default = "100"
+  description = "EC2 instance volume_iops"
+  default     = "100"
 }
 
 variable "instance_volume_type" {
-    description = "EC2 instance volume_type"
-  default = "gp2"
+  description = "EC2 instance volume_type"
+  default     = "gp2"
 }
 
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5.18xlarge"
-}
-
-variable "instance_type_5m" {
-  description = "type for aws EC2 instance"
-  default     = "c5.18xlarge"
+  default     = "c5n.18xlarge"
 }
 
 variable "instance_cpu_core_count" {
@@ -118,18 +113,18 @@ variable "environment_tag" {
 }
 
 variable "private_key" {
- description = "private key"
+  description = "private key"
   default     = "./../../../pems/performance-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
-   description = "public key"
+  description = "public key"
   default     = "./../../../pems/performance-cto-us-east-2.pub"
 }
 
 variable "key_name" {
-   description = "key name"
+  description = "key name"
   default     = "performance-cto-us-east-2"
 }
 
