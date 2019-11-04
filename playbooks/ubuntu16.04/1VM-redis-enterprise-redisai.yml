@@ -14,8 +14,8 @@
     - re_cluster_name: 'cluster-1vm-ubuntu16-redisai'
     - re_version: '5.4.6'
     - re_version_build: '18'
-    - re_proxy_max_threads: 4
-    - re_proxy_threads: 4
+    - re_proxy_max_threads: 8
+    - re_proxy_threads: 8
     - re_databases:
       - db_name: 'perf-db'
         db_password: ''
@@ -38,7 +38,7 @@
         db_aof_policy: 'appendfsync-every-sec'
     - re_run_install: True
     - re_run_uninstall: False
-    - re_run_createdatabase: True
+    - re_run_createdatabase: False
     - re_run_rladmin: True
   
   roles:

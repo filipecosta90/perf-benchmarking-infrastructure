@@ -86,15 +86,15 @@ resource "aws_instance" "perf_cto_server" {
   # Install node exporter #
   #########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
   }
 
   ###################
   # Install netdata #
   ###################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
-  # }
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
+  }
 
    ################################################################################
   # RediSearch Benchmark related
@@ -104,7 +104,7 @@ resource "aws_instance" "perf_cto_server" {
   # Redisearch Client related #
   ##########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ftsb.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/ftsb.yml -i ${self.public_ip},"
   }
 
 }

@@ -1,0 +1,31 @@
+---
+- name: Install FTSB
+  hosts: all
+  connection: ssh
+  # become: yes
+  # become_user: root
+  # become_method: sudo
+  roles:
+  - role: gantsign.golang
+  tasks:
+  - name: go get github.com/RediSearch/ftsb
+  #   become: yes
+    command: go get -u github.com/RediSearch/ftsb/...
+
+  - name: Go install ftsb ftsb_generate_data
+    # become: yes
+    command: go install github.com/RediSearch/ftsb/cmd/ftsb_generate_data
+
+  - name: Go install ftsb ftsb_load_redisearch
+    # become: yes
+    command: go install github.com/RediSearch/ftsb/cmd/ftsb_load_redisearch
+
+  - name: Go install ftsb ftsb_generate_queries
+    # become: yes
+    command: go install github.com/RediSearch/ftsb/cmd/ftsb_generate_queries
+
+  - name: Go install ftsb ftsb_run_queries_redisearch
+    # become: yes
+    command: go install github.com/RediSearch/ftsb/cmd/ftsb_run_queries_redisearch
+
+  

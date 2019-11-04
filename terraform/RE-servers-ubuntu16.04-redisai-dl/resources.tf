@@ -15,7 +15,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-dl-servers-RE-ubuntu16.04.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-dl-ubuntu16.04.tfstate"
     region = "us-east-1"
   }
 }
@@ -41,19 +41,16 @@ resource "aws_instance" "perf_cto_server" {
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
 
-  cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
+  cpu_threads_per_core = "${var.instance_cpu_threads_per_core}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
-  ebs_block_device {
-    device_name           = "${var.instance_device_name}"
+root_block_device {
     volume_size           = "${var.instance_volume_size}"
     volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
     encrypted             = "${var.instance_volume_encrypted}"
     delete_on_termination = true
-    
   }
-
 
   volume_tags = {
     Name = "ebs_block_device-${var.setup_name}-${count.index + 1}"
@@ -79,9 +76,9 @@ resource "aws_instance" "perf_cto_server" {
   #################
   # EC2 CONFIGURE #
   #################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
-  # }
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
+  }
 
   # ################################################################################
   # # performance related
@@ -151,14 +148,14 @@ resource "aws_instance" "perf_cto_server" {
   # Install netdata #
   ###################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
   }
   
   #########################
   # Install node exporter #
   #########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/node-exporter.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
   }
 
   ############################
@@ -197,4 +194,36 @@ resource "aws_instance" "perf_cto_server" {
   # provisioner "local-exec" {
   #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
   # }
+
+
+  ################################################################################
+  # Redis Enterprise related
+  ################################################################################
+
+  ###############################################
+  # Create inventory file #
+  ###############################################
+  provisioner "local-exec" {
+
+    command = "echo $l1 >> ${self.public_ip}.inv && echo $l2 >> ${self.public_ip}.inv"
+
+    environment = {
+      l1 = "[re_master]"
+      l2 = "${self.public_ip}"
+    }
+  }
+
+  ##############
+  # Install RE #
+  ##############
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise-redisai.yml -i ${self.public_ip}.inv"
+  }
+
+  ###############################################
+  # Remove any inventory file #
+  ###############################################
+  provisioner "local-exec" {
+    command = "rm *.inv"
+  }
 }

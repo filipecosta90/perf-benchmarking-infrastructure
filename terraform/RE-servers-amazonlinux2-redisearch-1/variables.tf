@@ -6,7 +6,12 @@ variable "region" {
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-amazonlinux2-redisearch"
+  default     = "perf-cto-RE-servers-amazonlinux2-redisearch-1"
+}
+
+variable "re_cluster_name_sufix" {
+ description = "re_cluster_name_sufix"
+  default     = "redisearch-1"
 }
 
 
@@ -95,7 +100,6 @@ variable "instance_cpu_threads_per_core" {
   description = "CPU threads per core for aws EC2 instance"
   default     = 1
 }
-
 
 variable "instance_cpu_threads_per_core_hyperthreading" {
   description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"

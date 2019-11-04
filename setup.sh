@@ -6,4 +6,4 @@ ansible-galaxy install linux-system-roles.tuned
 ansible-galaxy install idealista.prometheus_redis_exporter-role
 ansible-galaxy install cloudalchemy.process_exporter
 ansible-galaxy install jffz.netdata
-ansible-galaxy install fubarhouse.golang
+ansible-galaxy install gantsign.golang

@@ -15,19 +15,19 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-amazonlinux2-redisearch.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-amazonlinux2-redisearch-1.tfstate"
     region = "us-east-1"
   }
 }
 
-resource "aws_network_interface" "perf_cto_server_c5n_9xlarge_network_interface" {
+resource "aws_network_interface" "perf_cto_server_network_interface" {
   count = "${var.instance_network_interface_plus_count}"
 
   subnet_id       = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
   security_groups = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
 
   attachment {
-    instance     = "${aws_instance.perf_cto_server_c5n_9xlarge[0].id}"
+    instance     = "${aws_instance.perf_cto_server[0].id}"
     device_index = "${count.index + 2}"
   }
 
@@ -38,7 +38,7 @@ resource "aws_network_interface" "perf_cto_server_c5n_9xlarge_network_interface"
 
 }
 
-resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
+resource "aws_instance" "perf_cto_server" {
   count                  = "${var.server_instance_count}"
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
@@ -46,7 +46,7 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
-  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core_hyperthreading}"
+  cpu_threads_per_core   = "${var.instance_cpu_threads_per_core}"
   placement_group        = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
 
@@ -130,7 +130,7 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   }
 
   ##################
-  Install netdata #
+  # Install netdata #
   ##################
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
@@ -157,7 +157,7 @@ resource "aws_instance" "perf_cto_server_c5n_9xlarge" {
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise-redisearch.yml -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise-redisearch.yml --extra-vars \"re_cluster_name_sufix=${var.re_cluster_name_sufix}\" -i ${self.public_ip}.inv"
   }
 
   ###############################################
