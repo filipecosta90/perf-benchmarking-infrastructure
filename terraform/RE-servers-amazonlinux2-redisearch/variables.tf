@@ -74,19 +74,26 @@ variable "instance_volume_type" {
   default     = "gp2"
 }
 
+# Model	r5n.24xlarge	
+# Processor	Xeon Platinum 8000
+# (Skylake-SP)	Xeon Platinum 8000
+# vCPU	96
+# Memory (GiB) 768
+# Instance Storage (GiB)	EBS-Only	
+# Network Bandwidth (Gbps) 100
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5n.18xlarge"
+  default     = "r5n.24xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 36
+  default     = 48
 }
 
 variable "instance_cpu_threads_per_core" {
   description = "CPU threads per core for aws EC2 instance"
-  default     = 2
+  default     = 1
 }
 
 

@@ -5,29 +5,52 @@
   become: yes
   become_user: root
   become_method: sudo
+  roles:
+    - fubarhouse.golang
   vars:
-    aibench_root_dir: $GOPATH/src/github.com/RediSearch/ftsb
+    build_go_from_source: true
+    install_go_bootstrap: true
+    go_version: 1.13.1
+    go_get:
+      - name: RediSearch/ftsb
+        url: github.com/RediSearch/ftsb
   tasks:
-  - name: Install golang package
-    yum:
-      name: golang
-      state: present
-
-  - name: modify .bashrc
-    become: yes
-    blockinfile:
-      dest: "~/.bashrc"
-      block: |
-        export GOPATH=$HOME/go
-        export GOBIN=$GOPATH/bin
-        export PATH=$GOBIN:$PATH:/usr/local/go/bin
-      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for golang'
-      insertafter: EOF
-      create: yes
+  - name: install ftsb ftsb_generate_data
+    go_install:
+  # repo is the git clone url, ssh or https.
+    - repo: https://github.com/RediSearch/ftsb.git
+      # dest is the namespace
+      dest: github.com/RediSearch/ftsb/cmd/ftsb_generate_data
+      # version refers to a tag, or branch.
+      package: github.com/RediSearch/ftsb/cmd/ftsb_generate_data
+  - name: install ftsb ftsb_load_redisearch
+    go_install:
+  # repo is the git clone url, ssh or https.
+    - repo: https://github.com/RediSearch/ftsb.git
+      # dest is the namespace
+      dest: github.com/RediSearch/ftsb/cmd/ftsb_load_redisearch
+      # version refers to a tag, or branch.
+      package: github.com/RediSearch/ftsb/cmd/ftsb_load_redisearch
+  - name: install ftsb ftsb_generate_queries
+    go_install:
+  # repo is the git clone url, ssh or https.
+    - repo: https://github.com/RediSearch/ftsb.git
+      # dest is the namespace
+      dest: github.com/RediSearch/ftsb/cmd/ftsb_generate_queries
+      # version refers to a tag, or branch.
+      package: github.com/RediSearch/ftsb/cmd/ftsb_generate_queries
+  - name: install ftsb ftsb_run_queries_redisearch
+    go_install:
+  # repo is the git clone url, ssh or https.
+    - repo: https://github.com/RediSearch/ftsb.git
+      # dest is the namespace
+      dest: github.com/RediSearch/ftsb/cmd/ftsb_run_queries_redisearch
+      # version refers to a tag, or branch.
+      package: github.com/RediSearch/ftsb/cmd/ftsb_run_queries_redisearch
 
   # - name: go get github.com/RediSearch/ftsb
   #   become: yes
-  #   command: go get -v github.com/RediSearch/ftsb
+  #   command: go get -v github.com/RediSearch/ftsb/...
 
   # - name: Go install ftsb ftsb_generate_data
   #   become: yes

@@ -75,6 +75,13 @@ resource "aws_instance" "perf_cto_server" {
 
   }
 
+  #################
+  # EC2 CONFIGURE #
+  #################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
+  }
+
   #########################
   # Install node exporter #
   #########################

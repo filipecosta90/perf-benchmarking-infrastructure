@@ -20,7 +20,7 @@
       block: |
         export GOPATH=$HOME/go
         export GOBIN=$GOPATH/bin
-        export PATH=$GOBIN:$PATH:/usr/local/go/bin
+        export PATH=/usr/local/go/bin:$GOBIN:$PATH
       marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for golang'
       insertafter: EOF
       create: yes
