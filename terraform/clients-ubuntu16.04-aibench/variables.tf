@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default = "perf-cto-aibench-clients-ubuntu16.04"
+  default = "perf-cto-clients-ubuntu16.04-aibench"
 }
 
 variable "region" {
@@ -34,6 +34,11 @@ variable "instance_volume_type" {
   default = "gp2"
 }
 
+variable "instance_volume_encrypted" {
+  description = "EC2 instance instance_volume_encrypted"
+  default     = "false"
+}
+
 variable "instance_device_name" {
     description = "EC2 instance device name"
   default = "/dev/sda1"
@@ -48,15 +53,14 @@ variable "instance_device_name" {
 # Instance Storage (GiB)	EBS-Only	4 x 900 NVMe SSD	EBS-Only	4 x 900 NVMe SSD
 # Network Bandwidth (Gbps)	25	25	20	20
 # EBS Bandwidth (Mbps)	14,000	14,000	10,000	10,000
-
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "m5d.24xlarge"
+  default     = "r5.12xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 48
+  default     = 24
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -71,12 +75,10 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
 }
 
 
-
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"
   default     = 0
 }
-
 
 variable "os" {
  description = "os"

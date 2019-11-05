@@ -68,9 +68,6 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
   default     = 2
 }
 
-
-
-
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"
   default     = 0
@@ -90,21 +87,22 @@ variable "ssh_user" {
 
 
 variable "private_key" {
- description = "private key"
+  description = "private key"
   default     = "./../../../pems/performance-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
-   description = "public key"
+  description = "public key"
   default     = "./../../../pems/performance-cto-us-east-2.pub"
 }
 
 
 variable "key_name" {
-   description = "key name"
+  description = "key name"
   default     = "performance-cto-us-east-2"
 }
+
 
 variable "redis_oss_version" {
  description = "redis_oss_version"
@@ -113,7 +111,7 @@ variable "redis_oss_version" {
 
 variable "redis_ai_oss_version" {
  description = "redis_ai_oss_version"
-  default     = "perf-cmake"
+  default     = "master"
 }
 
 

@@ -8,23 +8,6 @@
   vars:
     aibench_root_dir: $GOPATH/src/github.com/RedisAI/aibench
   tasks:
-  - name: Install golang package
-    yum:
-      name: golang
-      state: present
-
-  - name: modify .bashrc
-    become: yes
-    blockinfile:
-      dest: "~/.bashrc"
-      block: |
-        export GOPATH=$HOME/go
-        export GOBIN=$GOPATH/bin
-        export PATH=/usr/local/go/bin:$GOBIN:$PATH
-      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for golang'
-      insertafter: EOF
-      create: yes
-
   - name: go get github.com/RedisAI/aibench
     become: yes
     command: go get -v github.com/RedisAI/aibench/...

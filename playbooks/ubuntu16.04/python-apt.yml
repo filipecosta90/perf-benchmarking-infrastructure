@@ -9,16 +9,10 @@
   gather_facts: false
 
   tasks:
-    - name: Install normal required packages
+    - name: Install python-apt
       become: yes
       apt:
         pkg:
-        - git
-        - autogen
-        - gcc
-        - make
-        - numactl
-        - htop
-        # update_cache: yes
-      
+        - python-apt
+        
     

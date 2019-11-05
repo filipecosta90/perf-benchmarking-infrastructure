@@ -15,7 +15,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-dl-ubuntu16.04.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu16.04-redisai.tfstate"
     region = "us-east-1"
   }
 }
@@ -44,7 +44,7 @@ resource "aws_instance" "perf_cto_server" {
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
-root_block_device {
+  root_block_device {
     volume_size           = "${var.instance_volume_size}"
     volume_type           = "${var.instance_volume_type}"
     iops                  = "${var.instance_volume_iops}"
@@ -53,24 +53,47 @@ root_block_device {
   }
 
   volume_tags = {
-    Name = "ebs_block_device-${var.setup_name}-${count.index + 1}"
+    Name        = "ebs_block_device-${var.setup_name}-${count.index + 1}"
     RedisModule = "${var.redis_module}"
   }
 
   tags = {
-    Name = "${var.setup_name}-${count.index + 1}"
+    Name        = "${var.setup_name}-${count.index + 1}"
     RedisModule = "${var.redis_module}"
   }
 
   # wait for instance to be ready to receive connection
   provisioner "remote-exec" {
     script = "./../../scripts/wait_for_instance.sh"
-      connection {
+    connection {
       host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
       type        = "ssh"               # in this case, `self` is the resource (the server).
       user        = "${var.ssh_user}"
       private_key = "${file(var.private_key)}"
     }
+  }
+  
+  # we require python to be installed on the VM
+   provisioner "remote-exec" {
+    inline = [
+      "sudo -S apt-get update",
+      "sudo apt-get install -y python-minimal"
+    ]
+    connection {
+      host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
+      type        = "ssh"
+      # agent       = false
+      private_key = "${file(var.private_key)}"
+      user        = "${var.ssh_user}"
+    }  
+  }
+
+
+#  #################
+#   # python-apt #
+#   #################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/python-apt.yml -i ${self.public_ip},"
   }
 
   #################
@@ -104,7 +127,7 @@ root_block_device {
   # provisioner "local-exec" {
   #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/pcp.yml -i ${self.public_ip},"
   # }
-  
+
 
   # ###########
   # # NETPERF #
@@ -150,20 +173,13 @@ root_block_device {
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
   }
-  
+
   #########################
   # Install node exporter #
   #########################
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
   }
-
-  ############################
-  # Install process exporter #
-  ############################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
-  # }
 
   ################################################################################
   # Redis AI OSS related
@@ -182,19 +198,18 @@ root_block_device {
   # provisioner "local-exec" {
   #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redis-server-oss-ai.yml -i ${self.public_ip}, --extra-vars \"redis_version=${var.redis_oss_version} redis_ai_module_path=~/redisai_src/build/redisai.so\""
   # }
-  
+
 
   # ################################################################################
   # # TensorFlow Serving related
   # ################################################################################
 
-  # ##############################
-  # # Install TensorFlow Serving #
-  # ##############################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
-  # }
-
+  ##############################
+  # Install TensorFlow Serving #
+  ##############################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
+  }
 
   ################################################################################
   # Redis Enterprise related
@@ -213,17 +228,24 @@ root_block_device {
     }
   }
 
+  ##########################
+  # Install redis-balancer #
+  ##########################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/redis-balancer.yml -i ${self.public_ip},"
+  }
+
   ##############
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/1VM-redis-enterprise-redisai.yml -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/1VM-redis-enterprise-redisai.yml -i ${self.public_ip}.inv"
   }
 
   ###############################################
   # Remove any inventory file #
   ###############################################
   provisioner "local-exec" {
-    command = "rm *.inv"
+    command = "rm ${self.public_ip}.inv"
   }
 }
