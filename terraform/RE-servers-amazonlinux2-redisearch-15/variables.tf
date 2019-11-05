@@ -6,12 +6,12 @@ variable "region" {
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-amazonlinux2-redisearch-1"
+  default     = "perf-cto-RE-servers-amazonlinux2-redisearch-15"
 }
 
 variable "re_cluster_name" {
  description = "re_cluster_name"
-  default     = "cluster-1vm-rhel7-redisearch-1"
+  default     = "cluster-1vm-rhel7-redisearch-15"
 }
 
 

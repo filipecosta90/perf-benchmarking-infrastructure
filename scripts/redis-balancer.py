@@ -1,4 +1,4 @@
-#!/opt/redislabs/bin/python
+#!/usr/bin/python2.7
 # Redis Balancer for NUMA Class Systems
 # Python 2.7.X
 # Based on scripts from Nail Sirazitdinov and Shankhadeep Shome

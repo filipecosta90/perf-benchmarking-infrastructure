@@ -1,0 +1,16 @@
+---
+- name: Install redis balancer script
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  tasks:
+  - name: Copy file with owner and permission, using symbolic representation
+    become: yes
+    copy:
+      src: ./../../scripts/redis-balancer.py
+      dest: /usr/local/bin/redis-balancer
+      owner: root
+      group: root
+      mode: u=rwx,g=rwx,o=rwx

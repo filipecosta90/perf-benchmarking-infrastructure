@@ -1,0 +1,14 @@
+---
+- name: Install golang
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    # Base installation directory the Go language SDK distribution
+    - golang_install_dir: '/usr/local/go'
+    - golang_gopath: '/usr/local/go/bin'
+    - golang_version: '1.13.4'
+  roles:
+    - { role: gantsign.golang, become: yes }  

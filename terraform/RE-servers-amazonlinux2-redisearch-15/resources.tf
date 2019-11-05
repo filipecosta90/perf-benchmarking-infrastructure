@@ -15,7 +15,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-amazonlinux2-redisearch-1.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-amazonlinux2-redisearch-15.tfstate"
     region = "us-east-1"
   }
 }

@@ -82,23 +82,30 @@ resource "aws_instance" "perf_cto_server" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/ec2-configure.yml -i ${self.public_ip},"
   }
 
-  #########################
-  # Install node exporter #
-  #########################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
-  }
+  # #########################
+  # # Install node exporter #
+  # #########################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
+  # }
 
-  ###################
-  # Install netdata #
-  ###################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
-  }
+  # ###################
+  # # Install netdata #
+  # ###################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
+  # }
 
    ################################################################################
   # RediSearch Benchmark related
   ################################################################################
+
+  # ##########################
+  # # golang #
+  # ##########################
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/golang.yml -i ${self.public_ip},"
+  # }
 
   ##########################
   # Redisearch Client related #

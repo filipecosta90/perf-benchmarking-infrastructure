@@ -10,7 +10,7 @@ variable "region" {
 }
 
 variable "server_instance_count" {
-  default = "2"
+  default = "1"
 }
 
 variable "instance_ami" {
