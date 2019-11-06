@@ -6,7 +6,10 @@
   become: yes
   become_user: root
   become_method: sudo
-  gather_facts: false
+  gather_facts: False
+  # pre_tasks:
+  #   - raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+  #   - setup: # aka gather_facts
 
   tasks:
     - name: Install normal required packages
@@ -19,6 +22,7 @@
         - make
         - numactl
         - htop
+        # - python-jmespath
         # update_cache: yes
       
     

@@ -72,7 +72,7 @@ resource "aws_instance" "perf_cto_server" {
       private_key = "${file(var.private_key)}"
     }
   }
-  
+
   # we require python to be installed on the VM
    provisioner "remote-exec" {
     inline = [
@@ -92,9 +92,9 @@ resource "aws_instance" "perf_cto_server" {
 #  #################
 #   # python-apt #
 #   #################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/python-apt.yml -i ${self.public_ip},"
-  }
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/python-apt.yml -i ${self.public_ip},"
+  # }
 
   #################
   # EC2 CONFIGURE #
@@ -207,9 +207,9 @@ resource "aws_instance" "perf_cto_server" {
   ##############################
   # Install TensorFlow Serving #
   ##############################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
-  }
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/tfserving.yml -i ${self.public_ip},"
+  # }
 
   ################################################################################
   # Redis Enterprise related

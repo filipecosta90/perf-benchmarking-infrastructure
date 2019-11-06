@@ -9,14 +9,22 @@
   - jffz.netdata
 
   tasks:
-  - name: Ensure the default Port is set to 49999
-    lineinfile:
-      path: /etc/netdata/netdata.conf
-      regexp: '# default port = 19999'
-      line: default port = 49999
+  # - name: Ensure the default Port is set to 49999
+  #   lineinfile:
+  #     path: /etc/netdata/netdata.conf
+  #     regexp: '# default port = 19999'
+  #     line: default port = 49999
 
   - name: Ensure retention period is set to 86400 seconds ( 1 day )
-    lineinfile:
+    blockinfile:
       path: /etc/netdata/netdata.conf
-      regexp: '# history = 3600'
-      line: history = 86400
+      block: |
+        retenhistory = 86400
+      insertafter: '\[global\]'
+
+  - name: Ensure the default Port is set to 49999
+    blockinfile:
+      path: /etc/netdata/netdata.conf
+      block: |
+        default port = 49999
+      insertafter: '\[web\]'

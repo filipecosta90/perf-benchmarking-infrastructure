@@ -1,6 +1,5 @@
 ---
 # Main tasks file for Redis Enterprise
-
   - name: Install Redis Enterprise software.
     hosts: re_master:re_node:re_quorum_only
     include: install.yml
