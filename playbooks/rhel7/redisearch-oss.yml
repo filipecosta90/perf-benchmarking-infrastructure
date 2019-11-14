@@ -1,0 +1,40 @@
+---
+- name: Install RediSearch OSS version 
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redisearch_root_dir: ~/RediSearch
+    redisearch_build_dir: "{{ redisearch_root_dir }}/build"
+  tasks:
+  - name: install os packages
+    become: yes
+    yum:
+      name: [make, gcc,cmake3, gcc-c++]
+      update_cache: yes
+  - name: clone RediSearch git repo
+    git:
+      repo: https://github.com/RediSearch/RediSearch.git
+      dest: "{{ redisearch_root_dir }}"
+      version: "{{ redisearch_version }}"
+
+  - name: Create RediSearch Build directory
+    become: yes
+    file:
+      path: "{{ redisearch_build_dir }}"
+      state: directory
+
+  - name: Build RediSearch Module
+    become: yes
+    command: cmake3 .. -DCMAKE_BUILD_TYPE=RELEASE
+    args:
+      chdir: "{{ redisearch_build_dir }}"
+
+  - name: compile RediSearch
+    become: yes
+    command: make
+    args:
+      chdir: "{{ redisearch_build_dir }}"
+  

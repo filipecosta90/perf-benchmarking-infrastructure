@@ -5,6 +5,18 @@ variable "setup_name" {
   default = "perf-cto-dl-servers-ubuntu16.04"
 }
 
+
+variable "redis_oss_version" {
+ description = "redis_oss_version"
+  default     = "5.0.5"
+}
+
+variable "redis_ai_oss_version" {
+ description = "redis_ai_oss_version"
+  default     = "perf-cmake"
+}
+
+
 variable "region" {
   default = "us-east-2"
 }
@@ -94,16 +106,6 @@ variable "public_key" {
 variable "key_name" {
    description = "key name"
   default     = "performance-cto-us-east-2"
-}
-
-variable "redis_oss_version" {
- description = "redis_oss_version"
-  default     = "5.0.5"
-}
-
-variable "redis_ai_oss_version" {
- description = "redis_ai_oss_version"
-  default     = "perf-cmake"
 }
 
 

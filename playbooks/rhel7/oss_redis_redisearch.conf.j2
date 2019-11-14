@@ -1,0 +1,8 @@
+port {{ item }}
+daemonize yes
+logfile redis-{{ item }}.log
+appendonly no
+protected-mode no
+save ""
+loglevel "warning"
+loadmodule /root/RediSearch/build/redisearch.so
