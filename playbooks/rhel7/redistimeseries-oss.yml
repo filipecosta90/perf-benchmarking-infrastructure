@@ -1,0 +1,41 @@
+---
+- name: Install RedisTimeSeries OSS version 
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redistimeseries_root_dir: ~/RedisTimeSeries
+    redistimeseries_build_dir: "{{ redistimeseries_root_dir }}"
+  tasks:
+  - name: install os packages
+    become: yes
+    yum:
+      name: [make, gcc,cmake3, gcc-c++]
+      update_cache: yes
+
+  - name: Clone RedisTimeSeries git repo
+    git: repo=https://github.com/RedisTimeSeries/RedisTimeSeries.git dest={{ redistimeseries_root_dir }}
+      recursive=yes accept_hostkey=yes update=yes track_submodules=yes
+      version="{{ redistimeseries_version }}"
+    become: yes
+
+  - name: Create RedisTimeSeries Build directory
+    become: yes
+    file:
+      path: "{{ redistimeseries_build_dir }}"
+      state: directory
+
+  - name: Setup RedisTimeSeries Module
+    become: yes
+    command: make setup
+    args:
+      chdir: "{{ redistimeseries_build_dir }}"
+
+  - name: Build RedisTimeSeries Module
+    become: yes
+    command: make build
+    args:
+      chdir: "{{ redistimeseries_build_dir }}"
+  

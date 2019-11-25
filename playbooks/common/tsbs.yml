@@ -1,0 +1,31 @@
+---
+- name: Install TSBS
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo 
+  tasks:
+  - name: go get github.com/RedisTimeSeries/tsbs
+    become: yes
+    command: go get -x github.com/RedisTimeSeries/tsbs@redistimeseries/...
+
+  # - name: Go install tsbs tsbs_generate_data
+  #   become: yes
+  #   command: go install github.com/RedisTimeSeries/tsbs/cmd/tsbs_generate_data
+
+  # - name: Go install tsbs tsbs_load_redistimeseries
+  #   become: yes
+  #   command: go install github.com/RedisTimeSeries/tsbs/cmd/tsbs_load_redistimeseries
+
+  # - name: Go install tsbs tsbs_generate_queries
+  #   become: yes
+  #   command: go install github.com/RedisTimeSeries/tsbs/cmd/tsbs_generate_queries
+
+  # - name: Go install tsbs tsbs_run_queries_redistimeseries
+  #   become: yes
+  #   command: go install github.com/RedisTimeSeries/tsbs/cmd/tsbs_run_queries_redistimeseries
+
+  
+
+  

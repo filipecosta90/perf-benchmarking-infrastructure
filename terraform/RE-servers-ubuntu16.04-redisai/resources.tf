@@ -133,7 +133,7 @@ resource "aws_instance" "perf_cto_server" {
   # # NETPERF #
   # ###########
   # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user --private-key ${var.private_key} ../../playbooks/${var.os}/netperf.yml -i ${self.public_ip},"
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netperf.yml -i ${self.public_ip},"
   # }
 
 
