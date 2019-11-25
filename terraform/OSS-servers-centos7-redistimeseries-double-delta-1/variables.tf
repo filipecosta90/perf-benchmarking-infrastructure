@@ -21,7 +21,7 @@ variable "redis_oss_version" {
 
 variable "redistimeseries_version" {
  description = "redistimeseries_version"
-  default     = "0716698ce4bd967665624dafd9b0a77852006fb0"
+  default     = "447714fa93384f6ada5b4757225e04dad213c87"
 }
 
 variable "redis_shards_per_vm" {
