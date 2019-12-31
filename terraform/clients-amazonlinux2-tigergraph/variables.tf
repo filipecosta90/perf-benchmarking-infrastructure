@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-clients-amazonlinux2-ftsb"
+  default     = "perf-cto-clients-amazonlinux2-tigergraph"
 }
 
 variable "region" {
@@ -20,7 +20,7 @@ variable "instance_ami" {
 
 variable "redis_module" {
   description = "redis_module"
-  default     = "RediSearch"
+  default     = "RedisGraph"
 }
 
 variable "instance_volume_iops" {

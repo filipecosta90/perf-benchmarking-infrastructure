@@ -15,7 +15,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-clients-amazonlinux2-tsbs.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-clients-amazonlinux2-tigergraph.tfstate"
     region = "us-east-1"
   }
 }
@@ -92,26 +92,19 @@ resource "aws_instance" "perf_cto_server" {
   ###################
   # Install netdata #
   ###################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
-  }
+  # provisioner "local-exec" {
+  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
+  # }
 
   ################################################################################
-  # RediSearch Benchmark related
+  # RedisGraph Benchmark related
   ################################################################################
 
-  ##########
-  # golang #
-  ##########
+    ##########################
+  # TigerGraph Client related #
+  ##########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/golang.yml -i ${self.public_ip},"
-  }
-
-  ##################################
-  # RedisTimeSeries Client related #
-  ##################################
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/tsbs.yml -i ${self.public_ip},"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/tigergraph.yml -i ${self.public_ip},"
   }
 
 }

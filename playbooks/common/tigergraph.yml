@@ -1,0 +1,23 @@
+# from http://dmitrypol.github.io/redis/2019/02/25/1000-node-redis-cluster.html
+---
+- name: Install TigerGraph's graph-database-benchmark
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    tigergraph_root_dir: ~/tigergraph_src
+    tigergraph_build_dir: "{{ tigergraph_root_dir }}/benchmark/redisgraph"
+    tigergraph_version: "perf"
+  tasks:
+  - name: clone graph-database-benchmark git repo
+    git:
+      repo: https://github.com/RedisGraph/graph-database-benchmark.git
+      dest: "{{ tigergraph_root_dir }}"
+      version: "{{ tigergraph_version }}"
+
+  - name: install the benchmark
+    command: pip install --user -r requirements.txt
+    args:
+      chdir: "{{ tigergraph_build_dir }}"

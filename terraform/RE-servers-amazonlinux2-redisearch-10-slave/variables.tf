@@ -6,12 +6,12 @@ variable "region" {
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-amazonlinux2-redisearch-10"
+  default     = "perf-cto-RE-servers-amazonlinux2-redisearch-10-slave"
 }
 
 variable "re_cluster_name" {
  description = "re_cluster_name"
-  default     = "cluster-1vm-rhel7-redisearch-10"
+  default     = "cluster-1vm-rhel7-redisearch-10-slave"
 }
 
 
@@ -31,7 +31,7 @@ variable "ssh_user" {
 }
 
 variable "server_instance_count" {
-  default = "2"
+  default = "1"
 }
 variable "client_instance_count" {
   default = "1"

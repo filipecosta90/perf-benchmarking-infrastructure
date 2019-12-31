@@ -42,5 +42,9 @@
   - name: Installing NUMAD
     become: yes
     command: yum install numad -y
+
+  - name: Installing Python Apt
+    become: yes
+    command: yum install python-pip -y
       
     

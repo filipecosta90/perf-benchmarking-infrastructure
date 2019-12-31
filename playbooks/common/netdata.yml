@@ -5,26 +5,8 @@
   become: yes
   become_user: root
   become_method: sudo
+  vars:
+    - netdata_history: 86400
+    - netdata_default_port: 49999
   roles:
-  - jffz.netdata
-
-  tasks:
-  # - name: Ensure the default Port is set to 49999
-  #   lineinfile:
-  #     path: /etc/netdata/netdata.conf
-  #     regexp: '# default port = 19999'
-  #     line: default port = 49999
-
-  - name: Ensure retention period is set to 86400 seconds ( 1 day )
-    blockinfile:
-      path: /etc/netdata/netdata.conf
-      block: |
-        retenhistory = 86400
-      insertafter: '\[global\]'
-
-  - name: Ensure the default Port is set to 49999
-    blockinfile:
-      path: /etc/netdata/netdata.conf
-      block: |
-        default port = 49999
-      insertafter: '\[web\]'
+  - mrlesmithjr.netdata
