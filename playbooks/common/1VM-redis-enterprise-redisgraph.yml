@@ -11,7 +11,7 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-rhel7-redisearch') }}"
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-rhel7-redisgraph') }}"
     - re_version: '5.4.6'
     - re_version_build: '18'
     - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
