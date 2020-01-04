@@ -33,3 +33,4 @@
   - name: "enable script on boot level"
     become: yes
     command: systemctl enable disable-thp
+

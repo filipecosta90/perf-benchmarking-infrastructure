@@ -9,6 +9,12 @@
   file: path={{ re_tmp_path }} state=directory
   when: re_dir.stat.exists == False
 
+- name: Ubuntu 18.04 - Downloading and Extracting '{{ re_filename_bionic }}'
+  unarchive: src={{ re_url_bionic }} dest={{ re_tmp_path }} remote_src=yes
+  when:
+    - ansible_distribution_release == 'bionic'
+    - re_dir.stat.exists == False
+
 - name: Ubuntu 16.04 - Downloading and Extracting '{{ re_filename_xenial }}'
   unarchive: src={{ re_url_xenial }} dest={{ re_tmp_path }} remote_src=yes
   when:

@@ -11,15 +11,15 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-rhel7-redisgraph') }}"
-    - re_version: '5.4.6'
-    - re_version_build: '18'
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-ubuntu18-redisgraph') }}"
+    - re_version: '5.4.10'
+    - re_version_build: '22'
     - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
     - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
     - re_databases:
       - db_name: 'perf-db'
         db_password: ''
-        db_memory_size: 107374182400      
+        db_memory_size: 53687091200      
         db_type: 'redis'
         db_replication: 'false'
         db_sharding: 'true'
