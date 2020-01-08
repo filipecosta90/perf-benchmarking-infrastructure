@@ -6,8 +6,8 @@
   become_user: root
   become_method: sudo
   vars:
-    redisgraph_root_dir: ~/RedisGraph
-    redisgraph_build_dir: ~/RedisGraph
+    redisgraph_root_dir: /root/RedisGraph
+    redisgraph_build_dir: /root/RedisGraph
     redisgraph_version: "v1.99.7"
 
   tasks:
@@ -25,10 +25,24 @@
       dest: "{{ redisgraph_root_dir }}"
       version: "{{ redisgraph_version }}"
       recursive: yes
+      track_submodules: yes
+      force: yes
 
-  - name: compile RedisGraph
+  - name: compile RedisGraph dependencies with normal optimizations
     become: yes
-    command: make DEBUG=1
+    command: make
+    args:
+      chdir: "{{ redisgraph_build_dir }}"
+
+  - name: clean only RedisGraph lib
+    become: yes
+    command: make clean
+    args:
+      chdir: "{{ redisgraph_build_dir }}"
+      
+  - name: compile only RedisGraph with debug flags
+    become: yes
+    command: DEBUG=1 make
     args:
       chdir: "{{ redisgraph_build_dir }}"
   

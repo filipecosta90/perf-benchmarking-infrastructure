@@ -87,6 +87,27 @@ resource "aws_instance" "perf_cto_server" {
   # # performance related
   # ################################################################################
 
+  ##############
+  # FlameGraph #
+  ##############
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/flamegraph.yml -i ${self.public_ip},"
+  }
+
+  ###################
+  # Install netdata #
+  ###################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/netdata.yml -i ${self.public_ip},"
+  }
+
+  # ###########
+  # # NETPERF #
+  # ###########
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netperf.yml -i ${self.public_ip},"
+  }
+
   #######
   # BCC #
   #######
@@ -101,7 +122,6 @@ resource "aws_instance" "perf_cto_server" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/sysctl.yml -i ${self.public_ip},"
   }
 
-
   ####################################
   # DISABLING TRANSPARENT HUGE PAGES #
   ####################################
@@ -115,20 +135,6 @@ resource "aws_instance" "perf_cto_server" {
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/node-exporter.yml -i ${self.public_ip},"
   }
-
-  # ############################
-  # # Install process exporter #
-  # ############################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/prometheus-process-exporter.yml -i ${self.public_ip},"
-  # }
-
-  # ###################
-  # # Install netdata #
-  # ###################
-  # provisioner "local-exec" {
-  #   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/netdata.yml -i ${self.public_ip},"
-  # }
 
   ################################################################################
   # Redis related

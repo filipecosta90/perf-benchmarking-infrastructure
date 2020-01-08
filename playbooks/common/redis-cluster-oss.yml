@@ -12,6 +12,7 @@
     redis_cluster_dir: ~/redis_cluster
     redis_path_var: /usr/local/bin
     redis_port_start: 6379
+    
   tasks:
 
   - name: clone redis git repo
@@ -24,15 +25,36 @@
 
   - name: compile redis
     become: yes
-    command: make noopt
+    command: make OPTIMIZATION="-O0"
     args:
       chdir: "{{ redis_src_dir }}/src"
 
   - name: install redis
     become: yes
-    command: sudo make noopt install 
+    command: sudo make OPTIMIZATION="-O0" install 
     args:
       chdir: "{{ redis_src_dir }}/src"
+
+  - name: add redis-server-jemalloc
+    become: yes
+    command: sudo cp {{ redis_src_dir }}/src/redis-server {{ redis_path_var }}/redis-server-jemalloc
+
+  - name: make distclean
+    become: yes
+    command: make distclean
+    args:
+      chdir: "{{ redis_src_dir }}/src"
+
+  - name: compile only redis-server OPTIMIZATION="-O0" MALLOC="libc"
+    become: yes
+    command: make OPTIMIZATION="-O0" MALLOC="libc" redis-server
+    args:
+      chdir: "{{ redis_src_dir }}/src"
+
+  - name: add redis-server-libc
+    become: yes
+    command: sudo cp {{ redis_src_dir }}/src/redis-server {{ redis_path_var }}/redis-server-libc
+  
 
   - name: Add redis bin dir to system-wide $PATH.
     become: yes
@@ -52,6 +74,7 @@
       path: "{{ redis_cluster_dir }}/{{ item }}"
       state: directory
     with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count | default(1) }}
+  
   - name: copy redis-server to cluster dirs
     become: yes
     copy:
@@ -60,6 +83,7 @@
       dest: "{{ redis_cluster_dir }}/{{ item }}/"
       mode: u+x
     with_sequence: start={{ redis_port_start }} count={{ redis_cluster_shard_count | default(1) }}
+  
   - name: copy redis.conf to cluster dirs
     become: yes
     template:

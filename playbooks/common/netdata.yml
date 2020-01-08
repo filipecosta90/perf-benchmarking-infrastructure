@@ -10,3 +10,12 @@
     - netdata_default_port: 49999
   roles:
   - mrlesmithjr.netdata
+  pre_tasks:
+    - name: Prepare system
+      become: yes
+      shell: apt-get install zlib1g-dev uuid-dev libuv1-dev liblz4-dev libjudy-dev libssl-dev libmnl-dev gcc make git autoconf autoconf-archive autogen automake pkg-config curl python -y
+      args:
+        executable: /bin/bash
+      when:
+        - ansible_distribution == 'Ubuntu'
+    
