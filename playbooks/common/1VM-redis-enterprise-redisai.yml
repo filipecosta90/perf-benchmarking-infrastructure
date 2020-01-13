@@ -12,8 +12,8 @@
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
     - re_cluster_name: 'cluster-1vm-ubuntu16-redisai'
-    - re_version: '5.4.6'
-    - re_version_build: '18'
+    - re_version: '5.4.10'
+    - re_version_build: '22'
     - re_proxy_max_threads: 8
     - re_proxy_threads: 8
     - re_databases:

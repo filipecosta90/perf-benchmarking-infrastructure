@@ -1,0 +1,48 @@
+---
+- name: Install RedisGraph OSS version 
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    redisgraph_root_dir: /root/RedisGraph
+    redisgraph_build_dir: /root/RedisGraph
+    redisgraph_version: "v1.99.7"
+
+  tasks:
+  - name: Update
+    become: yes
+    command: apt update -y
+
+  - name: Install normal required packages
+    become: yes
+    command: apt install build-essential cmake m4 automake peg libtool autoconf -y
+  
+  - name: clone RedisGraph git repo
+    git:
+      repo: https://github.com/RedisGraph/RedisGraph.git
+      dest: "{{ redisgraph_root_dir }}"
+      version: "{{ redisgraph_version }}"
+      recursive: yes
+      track_submodules: yes
+      force: yes
+
+  - name: compile RedisGraph dependencies with normal optimizations
+    become: yes
+    command: make
+    args:
+      chdir: "{{ redisgraph_build_dir }}"
+
+  - name: clean only RedisGraph lib
+    become: yes
+    command: make clean
+    args:
+      chdir: "{{ redisgraph_build_dir }}"
+      
+  - name: compile only RedisGraph with debug flags
+    become: yes
+    command: DEBUG=1 make
+    args:
+      chdir: "{{ redisgraph_build_dir }}"
+  

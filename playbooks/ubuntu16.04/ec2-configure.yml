@@ -12,6 +12,10 @@
   #   - setup: # aka gather_facts
 
   tasks:
+    - name: Update
+      become: yes
+      command: apt update -y
+      
     - name: Install normal required packages
       become: yes
       apt:
@@ -19,10 +23,16 @@
         - git
         - autogen
         - gcc
+        - g++
         - make
         - numactl
         - htop
         # - python-jmespath
-        # update_cache: yes
+        update_cache: yes
+    
+
+    # - name: Install normal required packages
+    #   become: yes
+    #   command: apt install git autogen gcc g++ make numactl htop -y
       
     

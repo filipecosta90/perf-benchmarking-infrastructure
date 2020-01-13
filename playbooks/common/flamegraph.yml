@@ -1,0 +1,30 @@
+---
+- name: Download brendangregg/FlameGraph and add the directory to PATH
+  hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  vars:
+    flamegraph_src_dir: /root/FlameGraph
+  tasks:
+
+  - name: clone brendangregg/FlameGraph git repo
+    become: yes
+    git:
+      repo: https://github.com/brendangregg/FlameGraph.git
+      dest: "{{ flamegraph_src_dir }}"
+
+  - name: Add FlameGraph dir to system-wide $PATH.
+    become: yes
+    copy:
+      dest: /etc/profile.d/flamegraph-path.sh
+      content: 'PATH=$PATH:{{ flamegraph_src_dir }}'
+      #enable other users to use the path
+      mode: '0644'
+  
+  - name: Reload Path
+    become: yes
+    shell: source /root/.bashrc
+    args:
+      executable: /bin/bash

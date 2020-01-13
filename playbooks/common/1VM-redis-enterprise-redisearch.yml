@@ -12,8 +12,8 @@
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
     - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-rhel7-redisearch') }}"
-    - re_version: '5.4.6'
-    - re_version_build: '18'
+    - re_version: '5.4.10'
+    - re_version_build: '22'
     - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
     - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
     - re_databases:
