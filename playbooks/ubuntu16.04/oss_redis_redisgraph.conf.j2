@@ -1,0 +1,8 @@
+port 6379
+daemonize yes
+logfile redisgraph-6379.log
+appendonly no
+protected-mode no
+save ""
+loglevel "warning"
+loadmodule /root/RedisGraph/src/redisgraph.so

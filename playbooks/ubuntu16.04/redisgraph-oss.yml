@@ -8,7 +8,7 @@
   vars:
     redisgraph_root_dir: /root/RedisGraph
     redisgraph_build_dir: /root/RedisGraph
-    redisgraph_version: "v1.99.7"
+    redisgraph_version: "{{ redisgraph_version | default('master') }}"
 
   tasks:
   - name: Update
@@ -34,15 +34,13 @@
     args:
       chdir: "{{ redisgraph_build_dir }}"
 
-  - name: clean only RedisGraph lib
+  - name: copy redis.conf
+    template:
+      src: oss_redis_redisgraph.conf.j2
+      dest: "{{ redisgraph_build_dir }}/redis.conf"
+
+  - name: start redis-server with redisgraph binded to core 1
     become: yes
-    command: make clean
+    command: /usr/local/bin/redis-server {{ redisgraph_build_dir }}/redis.conf
     args:
       chdir: "{{ redisgraph_build_dir }}"
-      
-  - name: compile only RedisGraph with debug flags
-    become: yes
-    command: DEBUG=1 make
-    args:
-      chdir: "{{ redisgraph_build_dir }}"
-  

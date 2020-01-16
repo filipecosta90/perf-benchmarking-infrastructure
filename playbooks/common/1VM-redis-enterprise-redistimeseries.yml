@@ -1,0 +1,46 @@
+---
+# The actual role
+- hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  gather_facts: True
+  vars:
+    - re_username: 'performance@redislabs.com'
+    - re_password: 'performance'
+    - re_license: "{{ lookup('env','RE_LICENSE') }}"
+    - re_domain_name: 'local'
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-ubuntu18-redistimeseries') }}"
+    - re_version: '5.4.10'
+    - re_version_build: '22'
+    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
+    - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
+    - re_databases:
+      - db_name: 'perf-db'
+        db_password: ''
+        db_memory_size: 536870912000      
+        db_type: 'redis'
+        db_replication: 'false'
+        db_sharding: 'true'
+        db_shards_count: "{{ db_shards_count | default(10) }}"
+        db_version: '5'
+        db_oss_cluster: 'true'
+        db_proxy_policy: 'single'
+        db_shards_placement: 'dense'
+        # config for more than one node
+        # db_oss_cluster: 'true'
+        # db_proxy_policy: 'all-master-shards'
+        # db_shards_placement: 'sparse'
+        db_redis_port: 12000
+        db_evict_policy: 'disabled'
+        db_persistence: 'disabled'
+        db_aof_policy: 'appendfsync-every-sec'
+    - re_run_install: True
+    - re_run_bootstrap: True
+    - re_run_uninstall: False
+    - re_run_createdatabase: False
+    - re_run_rladmin: True
+  
+  roles:
+    - ansible-redis-enterprise

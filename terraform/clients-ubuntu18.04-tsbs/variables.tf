@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-clients-amazonlinux2-tsbs"
+  default     = "perf-cto-clients-ubuntu18.04-tsbs"
 }
 
 variable "region" {
@@ -13,10 +13,22 @@ variable "server_instance_count" {
   default = "1"
 }
 
-variable "instance_ami" {
-  description = "AMI for aws EC2 instance"
-  default     = "ami-0d8f6eb4f641ef691"
+variable "os" {
+  description = "os"
+  default     = "ubuntu16.04"
 }
+
+
+variable "ssh_user" {
+  description = "ssh_user"
+  default     = "ubuntu"
+}
+
+variable "instance_ami" {
+  description = "AMI for aws EC2 instance - us-east-2 Ubuntu 18.04 LTS ami-021b7b04f1ac696c2"
+  default     = "ami-040dd5a87e9eb7641"
+}
+
 
 variable "redis_module" {
   description = "redis_module"
@@ -25,7 +37,7 @@ variable "redis_module" {
 
 variable "instance_volume_iops" {
   description = "EC2 instance volume_iops"
-  default     = "100"
+  default     = "1024"
 }
 
 variable "instance_volume_type" {
@@ -35,7 +47,7 @@ variable "instance_volume_type" {
 
 variable "instance_volume_size" {
   description = "EC2 instance volume_size"
-  default     = "64"
+  default     = "4096"
 }
 
 variable "instance_device_name" {
@@ -51,12 +63,12 @@ variable "instance_volume_encrypted" {
 
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "c5.9xlarge"
+  default     = "c5.18xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 18
+  default     = 36
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -77,33 +89,22 @@ variable "instance_network_interface_plus_count" {
 }
 
 
-variable "os" {
-  description = "os"
-  default     = "rhel7"
-}
-
-
-variable "ssh_user" {
-  description = "ssh_user"
-  default     = "ec2-user"
-}
-
 
 variable "private_key" {
   description = "private key"
-  default     = "./../../../pems/performance-cto-us-east-2.pem"
+  default     = "./../../../pems/perf-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
   description = "public key"
-  default     = "./../../../pems/performance-cto-us-east-2.pub"
+  default     = "./../../../pems/perf-cto-us-east-2.pub"
 }
 
 
 variable "key_name" {
   description = "key name"
-  default     = "performance-cto-us-east-2"
+  default     = "perf-cto-us-east-2"
 }
 
 

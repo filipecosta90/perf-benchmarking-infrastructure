@@ -1,3 +1,7 @@
+# Ansible
+*.retry
+*.inv
+
 # VSCode
 
 .vscode/*

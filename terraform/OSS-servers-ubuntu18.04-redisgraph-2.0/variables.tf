@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default = "perf-cto-clients-ubuntu16.04-aibench"
+  default     = "perf-cto-OSS-servers-ubuntu18.04-redisgraph"
 }
 
 variable "region" {
@@ -14,24 +14,39 @@ variable "server_instance_count" {
 }
 
 variable "instance_ami" {
-  // us-east-2	xenial	16.04 LTS	amd64	hvm:ebs-io1
-  description = "AMI for aws EC2 instance - Ubuntu"
-  default     = "ami-07e26819c90e50327"
+  description = "AMI for aws EC2 instance - us-east-2 Ubuntu 18.04 LTS perf-cto-debug-ubuntu18.04-redis-oss"
+  default     = "ami-040dd5a87e9eb7641"
+}
+
+variable "instance_device_name" {
+  description = "EC2 instance device name"
+  default     = "/dev/sda1"
+}
+
+variable "redis_module" {
+  description = "redis_module"
+  default     = "RedisGraph"
+}
+
+variable "redisgraph_version" {
+  description = "redisgraph_version"
+  default     = "record-pool"
 }
 
 variable "instance_volume_size" {
-    description = "EC2 instance volume_size"
-  default = "64"
+  description = "EC2 instance volume_size"
+  default     = "512"
+}
+
+
+variable "instance_volume_type" {
+  description = "EC2 instance volume_type"
+  default     = "gp2"
 }
 
 variable "instance_volume_iops" {
-    description = "EC2 instance volume_iops"
-  default = "100"
-}
-
-variable "instance_volume_type" {
-    description = "EC2 instance volume_type"
-  default = "gp2"
+  description = "EC2 instance volume_iops"
+  default     = "384"
 }
 
 variable "instance_volume_encrypted" {
@@ -39,20 +54,18 @@ variable "instance_volume_encrypted" {
   default     = "false"
 }
 
-variable "instance_device_name" {
-    description = "EC2 instance device name"
-  default = "/dev/sda1"
+variable "instance_root_block_device_encrypted" {
+  description = "EC2 instance instance_root_block_device_encrypted"
+  default     = "false"
 }
 
-# Model	m5.24xlarge	m5d.24xlarge	m5a.24xlarge	m5ad.24xlarge
+# Model	r5.12xlarge	
 # Processor	Xeon Platinum 8000
 # (Skylake-SP)	Xeon Platinum 8000
-# (Skylake-SP)	AMD EPYC 7000	AMD EPYC 7000
-# vCPU	96	96	96	96
-# Memory (GiB)	384	384	384	384
-# Instance Storage (GiB)	EBS-Only	4 x 900 NVMe SSD	EBS-Only	4 x 900 NVMe SSD
-# Network Bandwidth (Gbps)	25	25	20	20
-# EBS Bandwidth (Mbps)	14,000	14,000	10,000	10,000
+# vCPU	48 ( 24 disabling HT )
+# Memory (GiB) 384
+# Instance Storage (GiB)	EBS-Only	
+# Network Bandwidth (Gbps) 10
 variable "instance_type" {
   description = "type for aws EC2 instance"
   default     = "r5.12xlarge"
@@ -80,39 +93,34 @@ variable "instance_network_interface_plus_count" {
   default     = 0
 }
 
+
 variable "os" {
- description = "os"
+  description = "os"
   default     = "ubuntu16.04"
 }
 
 
 variable "ssh_user" {
- description = "ssh_user"
+  description = "ssh_user"
   default     = "ubuntu"
 }
 
 
 variable "private_key" {
- description = "private key"
+  description = "private key"
   default     = "./../../../pems/perf-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
-   description = "public key"
+  description = "public key"
   default     = "./../../../pems/perf-cto-us-east-2.pub"
 }
 
 
 variable "key_name" {
-   description = "key name"
+  description = "key name"
   default     = "perf-cto-us-east-2"
 }
-
-variable "redis_module" {
- description = "redis_module"
-  default     = "RedisAI"
-}
-
 
 

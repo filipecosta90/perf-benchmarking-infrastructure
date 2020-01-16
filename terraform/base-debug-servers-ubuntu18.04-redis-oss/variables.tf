@@ -28,6 +28,18 @@ variable "redis_config" {
   default     = "oss_redis_standalone.conf.j2"
 }
 
+
+variable "os" {
+  description = "os"
+  default     = "ubuntu16.04"
+}
+
+
+variable "ssh_user" {
+  description = "ssh_user"
+  default     = "ubuntu"
+}
+
 variable "instance_ami" {
   description = "AMI for aws EC2 instance - us-east-2 Ubuntu 18.04 LTS ami-021b7b04f1ac696c2"
   default     = "ami-021b7b04f1ac696c2"
@@ -109,33 +121,23 @@ variable "instance_network_interface_plus_count" {
 }
 
 
-variable "os" {
-  description = "os"
-  default     = "ubuntu16.04"
-}
-
-
-variable "ssh_user" {
-  description = "ssh_user"
-  default     = "ubuntu"
-}
 
 
 variable "private_key" {
   description = "private key"
-  default     = "./../../../pems/performance-cto-us-east-2.pem"
+  default     = "./../../../pems/perf-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
   description = "public key"
-  default     = "./../../../pems/performance-cto-us-east-2.pub"
+  default     = "./../../../pems/perf-cto-us-east-2.pub"
 }
 
 
 variable "key_name" {
   description = "key name"
-  default     = "performance-cto-us-east-2"
+  default     = "perf-cto-us-east-2"
 }
 
 

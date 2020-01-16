@@ -1,4 +1,3 @@
-# from http://dmitrypol.github.io/redis/2019/02/25/1000-node-redis-cluster.html
 ---
 - name: Install TigerGraph's graph-database-benchmark
   hosts: all
@@ -7,9 +6,20 @@
   become_user: root
   become_method: sudo
   vars:
-    tigergraph_root_dir: ~/tigergraph_src
+    tigergraph_bulk_data_dir: /root/bulk_data
+    tigergraph_root_dir: /root/graph-database-benchmark
     tigergraph_build_dir: "{{ tigergraph_root_dir }}/benchmark/redisgraph"
     tigergraph_version: "perf"
+    
+  pre_tasks:
+    - name: Prepare system
+      become: yes
+      shell: apt-get install python python3-pip -y
+      args:
+        executable: /bin/bash
+      when:
+        - ansible_distribution == 'Ubuntu'
+
   tasks:
   - name: clone graph-database-benchmark git repo
     git:
@@ -18,6 +28,11 @@
       version: "{{ tigergraph_version }}"
 
   - name: install the benchmark
-    command: pip install --user -r requirements.txt
+    command: python3 -m pip install --user -r requirements.txt
+    args:
+      chdir: "{{ tigergraph_build_dir }}"
+
+  - name: retrieve graph500 dataset
+    command: BULK_DATA_DIR={{ tigergraph_bulk_data_dir }} ./scripts/get_graph500_dataset.sh
     args:
       chdir: "{{ tigergraph_build_dir }}"

@@ -81,19 +81,19 @@ variable "ssh_user" {
 
 variable "private_key" {
  description = "private key"
-  default     = "./../../../pems/performance-cto-us-east-2.pem"
+  default     = "./../../../pems/perf-cto-us-east-2.pem"
 }
 
 
 variable "public_key" {
    description = "public key"
-  default     = "./../../../pems/performance-cto-us-east-2.pub"
+  default     = "./../../../pems/perf-cto-us-east-2.pub"
 }
 
 
 variable "key_name" {
    description = "key name"
-  default     = "performance-cto-us-east-2"
+  default     = "perf-cto-us-east-2"
 }
 
 variable "redis_oss_version" {

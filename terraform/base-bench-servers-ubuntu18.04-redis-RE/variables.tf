@@ -1,27 +1,21 @@
 # Variables
 
+variable "setup_name" {
+  description = "setup name"
+  default     = "perf-cto-base-bench-servers-ubuntu18.04-redis-RE-1"
+}
+
 variable "region" {
   default = "us-east-2"
 }
 
-variable "setup_name" {
-  description = "setup name"
-  default     = "perf-cto-OSS-servers-amazonlinux2-redisearch-1"
-}
-
-variable "re_cluster_name" {
- description = "re_cluster_name"
-  default     = "oss-cluster-1vm-rhel7-redisearch-1"
+variable "server_instance_count" {
+  default = "1"
 }
 
 variable "redis_oss_version" {
  description = "redis_oss_version"
-  default     = "5.0.5"
-}
-
-variable "redisearch_version" {
- description = "redisearch_version"
-  default     = "master"
+  default     = "5.0.7"
 }
 
 variable "redis_shards_per_vm" {
@@ -31,50 +25,39 @@ variable "redis_shards_per_vm" {
 
 variable "redis_config" {
  description = "redis_config"
-  default     = "oss_redis_redisearch.conf.j2"
+  default     = "oss_redis_standalone.conf.j2"
 }
 
-variable "redis_module" {
-  description = "redis_module"
-  default     = "RediSearch"
-}
+
 variable "os" {
   description = "os"
-  default     = "rhel7"
+  default     = "ubuntu16.04"
 }
+
 
 variable "ssh_user" {
   description = "ssh_user"
-  default     = "ec2-user"
+  default     = "ubuntu"
 }
 
-variable "server_instance_count" {
-  default = "1"
-}
-variable "client_instance_count" {
-  default = "1"
-}
-
-variable "cidr_vpc" {
-  description = "CIDR block for the VPC"
-  default     = "10.3.0.0/16"
-}
-variable "cidr_subnet" {
-  description = "CIDR block for the subnet"
-  default     = "10.3.0.0/24"
-}
-variable "availability_zone" {
-  description = "availability zone to create subnet"
-  default     = "us-east-2a"
-}
 variable "instance_ami" {
-  description = "AMI for aws EC2 instance"
-  default     = "ami-0d8f6eb4f641ef691"
+  description = "AMI for aws EC2 instance - us-east-2 Ubuntu 18.04 LTS ami-021b7b04f1ac696c2"
+  default     = "ami-021b7b04f1ac696c2"
 }
 
 variable "instance_device_name" {
   description = "EC2 instance device name"
-  default     = "/dev/xvda"
+  default     = "/dev/sda1"
+}
+
+variable "redis_module" {
+  description = "redis_module"
+  default     = "RedisOSS_BaseImage"
+}
+
+variable "re_cluster_name" {
+ description = "re_cluster_name"
+  default     = "cluster-1vm-baseimage-1"
 }
 
 variable "instance_volume_size" {
@@ -82,31 +65,37 @@ variable "instance_volume_size" {
   default     = "128"
 }
 
-variable "instance_volume_encrypted" {
-  description = "EC2 instance instance_volume_encrypted"
-  default     = "false"
-}
-
-variable "instance_volume_iops" {
-  description = "EC2 instance volume_iops"
-  default     = "100"
-}
 
 variable "instance_volume_type" {
   description = "EC2 instance volume_type"
   default     = "gp2"
 }
 
-# Model	r5n.24xlarge
+variable "instance_volume_iops" {
+  description = "EC2 instance volume_iops"
+  default     = "384"
+}
+
+variable "instance_volume_encrypted" {
+  description = "EC2 instance instance_volume_encrypted"
+  default     = "false"
+}
+
+variable "instance_root_block_device_encrypted" {
+  description = "EC2 instance instance_root_block_device_encrypted"
+  default     = "false"
+}
+
+# Model	c5.24xlarge	
 # Processor	Xeon Platinum 8000
 # (Skylake-SP)	Xeon Platinum 8000
 # vCPU	96
-# Memory (GiB) 768
+# Memory (GiB) 196
 # Instance Storage (GiB)	EBS-Only	
 # Network Bandwidth (Gbps) 100
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "r5n.24xlarge"
+  default     = "r5.24xlarge"
 }
 
 variable "instance_cpu_core_count" {
@@ -118,6 +107,7 @@ variable "instance_cpu_threads_per_core" {
   description = "CPU threads per core for aws EC2 instance"
   default     = 1
 }
+
 
 variable "instance_cpu_threads_per_core_hyperthreading" {
   description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"
@@ -131,15 +121,7 @@ variable "instance_network_interface_plus_count" {
 }
 
 
-variable "placement_group_name" {
-  description = "placement group name"
-  default     = "perf-cto-pg"
-}
 
-variable "environment_tag" {
-  description = "Environment tag"
-  default     = "performance-cto"
-}
 
 variable "private_key" {
   description = "private key"
@@ -151,6 +133,7 @@ variable "public_key" {
   description = "public key"
   default     = "./../../../pems/perf-cto-us-east-2.pub"
 }
+
 
 variable "key_name" {
   description = "key name"
