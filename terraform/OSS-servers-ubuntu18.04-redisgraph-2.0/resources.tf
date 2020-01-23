@@ -72,7 +72,7 @@ resource "aws_instance" "perf_cto_server" {
   # Install OSS RedisGraph
   ##########################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redisgraph-oss.yml -i ${self.public_ip}, --extra-vars \"redisgraph_version=${var.redisgraph_version}\""
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redisgraph-oss.yml -i ${self.public_ip}, --extra-vars \"OMP_NUM_THREADS=12 redisgraph_version=${var.redisgraph_version}\""
   }
 
 }

@@ -15,7 +15,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-OSS-servers-ubuntu18.04-redisgraph-1.2.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu18.04-redisearch-10.tfstate"
     region = "us-east-1"
   }
 }
@@ -65,14 +65,33 @@ resource "aws_instance" "perf_cto_server" {
   }
 
   ################################################################################
-  # RedisGraph related
+  # Redis Enterprise related
   ################################################################################
 
-  ##########################
-  # Install OSS RedisGraph
-  ##########################
+  ###############################################
+  # Create inventory file #
+  ###############################################
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redisgraph-oss.yml -i ${self.public_ip}, --extra-vars \"OMP_NUM_THREADS=12 redisgraph_version=${var.redisgraph_version}\""
+
+    command = "echo $l1 >> ${self.public_ip}.inv && echo $l2 >> ${self.public_ip}.inv"
+
+    environment = {
+      l1 = "[re_master]"
+      l2 = "${self.public_ip}"
+    }
   }
 
+  ##############
+  # Install RE #
+  ##############
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/1VM-redis-enterprise-redisearch.yml --extra-vars \"re_cluster_name=${var.re_cluster_name} re_proxy_max_threads=10 db_shards_count=10 re_proxy_threads=10\" -i ${self.public_ip}.inv"
+  }
+
+  ###############################################
+  # Remove any inventory file #
+  ###############################################
+  provisioner "local-exec" {
+    command = "rm *.inv"
+  }
 }

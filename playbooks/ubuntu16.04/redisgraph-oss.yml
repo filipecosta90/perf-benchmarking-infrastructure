@@ -41,6 +41,6 @@
 
   - name: start redis-server with redisgraph binded to core 1
     become: yes
-    command: /usr/local/bin/redis-server {{ redisgraph_build_dir }}/redis.conf
+    command: OMP_NUM_THREADS={{ OMP_NUM_THREADS }} /usr/local/bin/redis-server {{ redisgraph_build_dir }}/redis.conf
     args:
       chdir: "{{ redisgraph_build_dir }}"

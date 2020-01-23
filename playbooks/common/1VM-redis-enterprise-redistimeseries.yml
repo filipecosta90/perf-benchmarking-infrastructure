@@ -44,3 +44,33 @@
   
   roles:
     - ansible-redis-enterprise
+
+  pre_tasks:
+  - name: stop systemd-resolved
+    become: yes
+    shell: sudo systemctl stop systemd-resolved
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: modify /etc/systemd/resolved.conf
+    become: yes
+    blockinfile:
+      dest: "/etc/systemd/resolved.conf"
+      block: |
+        DNS=8.8.8.8
+        DNSStubListener=no
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for RedisEnterprise'
+      insertafter: EOF
+      create: yes 
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name:  sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    become: yes
+    shell:  sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'

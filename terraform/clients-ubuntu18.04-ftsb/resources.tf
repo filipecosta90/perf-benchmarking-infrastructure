@@ -1,4 +1,3 @@
-#providers
 provider "aws" {
   region = "${var.region}"
 }
@@ -15,7 +14,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-OSS-servers-ubuntu18.04-redisgraph-1.2.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-clients-ubuntu18.04-ftsb.tfstate"
     region = "us-east-1"
   }
 }
@@ -24,7 +23,7 @@ resource "aws_instance" "perf_cto_server" {
   count                  = "${var.server_instance_count}"
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
-  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
+  subnet_id              = "${data.terraform_remote_state.shared_resources.outputs.subnet_public_id}"
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
@@ -50,29 +49,35 @@ resource "aws_instance" "perf_cto_server" {
     RedisModule = "${var.redis_module}"
   }
 
-  # wait for instance to be ready to receive connection
   provisioner "remote-exec" {
     script = "./../../scripts/wait_for_instance.sh"
-    connection {
+
+      connection {
       host        = "${self.public_ip}" # The `self` variable is like `this` in many programming languages
       type        = "ssh"               # in this case, `self` is the resource (the server).
       user        = "${var.ssh_user}"
       private_key = "${file(var.private_key)}"
-      #need to increase timeout to larger then 5m for metal instances
-      timeout = "15m"
+
     }
 
   }
-
+  
   ################################################################################
-  # RedisGraph related
+  # RedisTimeSeries Benchmark related
   ################################################################################
 
-  ##########################
-  # Install OSS RedisGraph
-  ##########################
+  ##########
+  # golang #
+  ##########
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/redisgraph-oss.yml -i ${self.public_ip}, --extra-vars \"OMP_NUM_THREADS=12 redisgraph_version=${var.redisgraph_version}\""
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/golang.yml -i ${self.public_ip},"
+  }
+
+  ##################################
+  # FTSB related #
+  ##################################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/ftsb.yml -i ${self.public_ip},"
   }
 
 }

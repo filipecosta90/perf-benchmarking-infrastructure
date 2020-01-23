@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-ubuntu18.04-redistimeseries-10"
+  default     = "perf-cto-RE-servers-ubuntu18.04-redisearch-5"
 }
 
 variable "region" {
@@ -25,18 +25,18 @@ variable "instance_device_name" {
 
 variable "redis_module" {
   description = "redis_module"
-  default     = "RedisTimeSeries"
+  default     = "RediSearch"
 }
 
 
 variable "re_cluster_name" {
  description = "re_cluster_name"
-  default     = "cluster-1vm-ubuntu18-redistimeseries-10"
+  default     = "cluster-1vm-ubuntu18-redisearch-5"
 }
 
 variable "instance_volume_size" {
   description = "EC2 instance volume_size"
-  default     = "4096"
+  default     = "128"
 }
 
 
@@ -69,7 +69,7 @@ variable "instance_root_block_device_encrypted" {
 # Network Bandwidth (Gbps) 100
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "r5.24xlarge"
+  default     = "c5.24xlarge"
 }
 
 variable "instance_cpu_core_count" {

@@ -15,20 +15,8 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu18.04-redistimeseries-10.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu18.04-redistimeseries-v1.0.3-10.tfstate"
     region = "us-east-1"
-  }
-}
-
-
-resource "aws_network_interface" "perf_cto_server_network_interface" {
-  count           = "${var.instance_network_interface_plus_count}"
-  subnet_id       = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
-  security_groups = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
-
-  attachment {
-    instance     = "${aws_instance.perf_cto_server[0].id}"
-    device_index = "${count.index + 2}"
   }
 }
 

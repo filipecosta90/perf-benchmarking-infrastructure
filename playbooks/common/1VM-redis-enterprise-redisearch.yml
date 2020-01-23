@@ -11,7 +11,7 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-rhel7-redisearch') }}"
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-1vm-redisearch') }}"
     - re_version: '5.4.10'
     - re_version_build: '22'
     - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
@@ -44,3 +44,76 @@
   
   roles:
     - ansible-redis-enterprise
+
+  pre_tasks:
+  - name: stop systemd-resolved
+    become: yes
+    shell: systemctl stop systemd-resolved
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: modify /etc/systemd/resolved.conf
+    become: yes
+    blockinfile:
+      dest: "/etc/systemd/resolved.conf"
+      block: |
+        DNS=8.8.8.8
+        DNSStubListener=no
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for RedisEnterprise'
+      insertafter: EOF
+      create: yes 
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name:  ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    become: yes
+    shell:  ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock-frontend
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+
+  # - name: Update APT Cache
+  #   apt:
+  #     update_cache: yes
+  #     force_apt_get: yes
+  #   when:
+  #     - ansible_distribution == 'Ubuntu'
+
+  - name: Remove apt lock file
+    become: yes
+    file:
+      state: absent
+      path: "/var/lib/dpkg/lock"
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Upgrade all packages to the latest version
+    become: yes
+    apt:
+      name: "*"
+      state: latest
+      force_apt_get: yes
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  # - name:  apt update
+  #   become: yes
+  #   command: apt update -y
+  #   when:
+  #     - ansible_distribution == 'Ubuntu'
