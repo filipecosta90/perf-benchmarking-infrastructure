@@ -6,6 +6,9 @@
 	"shards_count": {{ item.db_shards_count }},
 	"version": "{{ item.db_version }}",
 	"memory_size": {{ item.db_memory_size }},
+	{% if re_flash_enabled %}
+    "bigstore_ram_size": {{ item.bigstore_ram_size }},
+  	{% endif %}
 	"type": "{{ item.db_type }}",
 	"oss_cluster": {{ item.db_oss_cluster }},
 	"proxy_policy": "{{ item.db_proxy_policy }}",

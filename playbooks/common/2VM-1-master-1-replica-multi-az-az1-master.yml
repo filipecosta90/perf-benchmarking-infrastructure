@@ -1,0 +1,107 @@
+---
+# The actual role
+- hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  gather_facts: True
+  vars:
+    - re_username: 'performance@redislabs.com'
+    - re_password: 'performance'
+    - re_license: "{{ lookup('env','RE_LICENSE') }}"
+    - re_domain_name: 'local'
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-2vm-cdrb-rof-multi-az-az1') }}"
+    - re_version: '5.4.10'
+    - re_version_build: '22'
+    - re_flash_enabled: True
+    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
+    - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
+    - re_databases:
+      - db_name: 'perf-db'
+        db_password: ''
+        db_memory_size: "{{ db_memory_size | default(193273528320) }}"   
+        bigstore_ram_size: "{{ bigstore_ram_size | default(103079215104) }}"   
+        db_type: "{{ db_type | default('big_redis') }}"
+        db_replication: "{{ db_replication | default('false') }}"
+        db_sharding: 'true'
+        db_shards_count: "{{ db_shards_count | default(10) }}"
+        db_version: '5'
+        db_oss_cluster: "{{ db_type | default('false') }}"
+        db_proxy_policy: 'single'
+        db_shards_placement: 'dense'
+        # config for more than one node
+        # db_oss_cluster: 'true'
+        # db_proxy_policy: 'all-master-shards'
+        # db_shards_placement: 'sparse'
+        db_redis_port: 12000
+        db_evict_policy: 'disabled'
+        db_persistence: "{{ db_persistence | default('aof') }}"
+        db_aof_policy: 'appendfsync-every-sec'
+    - re_run_install: False
+    - re_run_uninstall: False
+    - re_run_createdatabase: True
+    - re_run_rladmin: False
+    - re_run_bootstrap: False
+  
+  roles:
+    - ansible-redis-enterprise
+
+  pre_tasks:
+ 
+  - name: modify /etc/systemd/resolved.conf
+    become: yes
+    blockinfile:
+      dest: "/etc/systemd/resolved.conf"
+      block: |
+        DNSStubListener=no
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for RedisEnterprise'
+      insertafter: EOF
+      create: yes 
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Run sudo mv /etc/resolv.conf /etc/resolv.conf.orig
+    become: yes
+    shell: sudo mv /etc/resolv.conf /etc/resolv.conf.orig
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name:  sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    become: yes
+    shell:  sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: sudo service systemd-resolved restart
+    become: yes
+    shell: sudo service systemd-resolved restart
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock-frontend
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+
+  - name: Remove apt lock file
+    become: yes
+    file:
+      state: absent
+      path: "/var/lib/dpkg/lock"
+    when:
+      - ansible_distribution == 'Ubuntu'

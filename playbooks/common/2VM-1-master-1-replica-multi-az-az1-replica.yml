@@ -1,0 +1,86 @@
+---
+# The actual role
+- hosts: all
+  connection: ssh
+  become: yes
+  become_user: root
+  become_method: sudo
+  gather_facts: True
+  vars:
+    - re_username: 'performance@redislabs.com'
+    - re_password: 'performance'
+    - re_license: "{{ lookup('env','RE_LICENSE') }}"
+    - re_domain_name: 'local'
+    - re_cluster_name: "{{ re_cluster_name | default('cluster-2vm-cdrb-rof-multi-az-az1') }}"
+    - re_version: '5.4.10'
+    - re_version_build: '22'
+    - re_flash_enabled: True
+    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
+    - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
+    - re_run_install: True
+    - re_run_uninstall: False
+    - re_run_createdatabase: False
+    - re_run_rladmin: False
+    - re_run_bootstrap: False
+  
+  roles:
+    - ansible-redis-enterprise
+
+  pre_tasks:
+ 
+  - name: modify /etc/systemd/resolved.conf
+    become: yes
+    blockinfile:
+      dest: "/etc/systemd/resolved.conf"
+      block: |
+        DNSStubListener=no
+      marker: '# {mark} ANSIBLE MANAGED BLOCK - changes for RedisEnterprise'
+      insertafter: EOF
+      create: yes 
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Run sudo mv /etc/resolv.conf /etc/resolv.conf.orig
+    become: yes
+    shell: sudo mv /etc/resolv.conf /etc/resolv.conf.orig
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name:  sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    become: yes
+    shell:  sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: sudo service systemd-resolved restart
+    become: yes
+    shell: sudo service systemd-resolved restart
+    args:
+      executable: /bin/bash
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+  - name: Wait for /var/lib/dpkg/lock-frontend
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 5; done;
+    when:
+      - ansible_distribution == 'Ubuntu'
+
+
+  - name: Remove apt lock file
+    become: yes
+    file:
+      state: absent
+      path: "/var/lib/dpkg/lock"
+    when:
+      - ansible_distribution == 'Ubuntu'
