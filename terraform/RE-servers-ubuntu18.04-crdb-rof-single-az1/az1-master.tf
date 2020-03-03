@@ -19,6 +19,13 @@ resource "aws_instance" "az1_master_instance" {
     delete_on_termination = true
   }
 
+  ebs_block_device {
+    device_name           = "/dev/sdg"
+    volume_size           = "${var.ebs_volume_size}"
+    volume_type           = "${var.ebs_volume_type}"
+    delete_on_termination = true
+    encrypted             = "${var.ebs_volume_encrypted}"
+  }
 
   volume_tags = {
     Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-master"
@@ -66,13 +73,13 @@ resource "aws_instance" "az1_master_instance" {
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/2VM-1-master-1-replica-multi-az-az1-master.yml --extra-vars \"cluster_name=${var.re_cluster_name}-${data.aws_availability_zones.available.names[0]}\" -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/2VM-1-master-1-replica-multi-az-az1-master.yml --extra-vars \"re_cluster_name=${var.re_cluster_name}-${data.aws_availability_zones.available.names[0]} re_proxy_max_threads=10 re_db_shards_count='true' re_db_type='big_redis' re_db_shards_count=16 re_proxy_threads=10\" -i ${self.public_ip}.inv"
   }
 
   ###############################################
   # Remove any inventory file #
   ###############################################
   provisioner "local-exec" {
-    command = "rm ${self.public_ip}.inv"
+    command = "rm *.inv"
   }
 }

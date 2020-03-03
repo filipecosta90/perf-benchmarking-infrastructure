@@ -1,15 +1,15 @@
 
-resource "aws_instance" "az1_replica_instance" {
+resource "aws_instance" "az3_memtier_instance" {
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
-  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
+  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_us_east_2c_public_id
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
 
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
-  placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
-  availability_zone    = "${data.aws_availability_zones.available.names[0]}"
+  placement_group      = "${data.terraform_remote_state.shared_resources.outputs.placement_group_name_us_east_2c}"
+  availability_zone    = "${data.aws_availability_zones.available.names[2]}"
 
   root_block_device {
     volume_size           = "${var.root_volume_size}"
@@ -20,12 +20,12 @@ resource "aws_instance" "az1_replica_instance" {
   }
 
   volume_tags = {
-    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-replica"
+    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[2]}-memtier"
     RedisModule = "${var.redis_module}"
   }
 
   tags = {
-    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[0]}-replica"
+    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[2]}-memtier"
     RedisModule = "${var.redis_module}"
   }
 
@@ -40,5 +40,12 @@ resource "aws_instance" "az1_replica_instance" {
       #need to increase timeout to larger then 5m for metal instances
       timeout = "15m"
     }
+  }
+
+  ############################
+  # Install memtier_bnchmark #
+  ############################
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/memtier.yml -i ${self.public_ip},"
   }
 }

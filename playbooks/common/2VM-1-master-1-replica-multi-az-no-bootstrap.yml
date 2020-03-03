@@ -12,16 +12,37 @@
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
     - re_cluster_name: "{{ re_cluster_name | default('cluster-2vm-cdrb-rof-multi-az-az1') }}"
-    - re_version: '5.4.10'
-    - re_version_build: '22'
+    - re_version: '5.4.14'
+    - re_version_build: '19'
     - re_flash_enabled: True
-    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
-    - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
+    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(16) }}"
+    - re_proxy_threads: "{{ re_proxy_threads | default(16) }}"
+    - re_databases:
+      - db_name: 'perf-db'
+        db_password: ''
+        db_memory_size: "{{ re_db_memory_size | default(193273528320) }}"   
+        bigstore_ram_size: "{{ re_bigstore_ram_size | default(103079215104) }}"   
+        db_type: "{{ re_db_type | default('redis') }}"
+        db_replication: "{{ re_db_replication | default('false') }}"
+        db_sharding: 'true'
+        db_shards_count: "{{ re_db_shards_count | default(10) }}"
+        db_version: '5'
+        db_oss_cluster: "{{ re_db_oss_cluster | default('false') }}"
+        db_proxy_policy: 'single'
+        db_shards_placement: 'dense'
+        # config for more than one node
+        # db_oss_cluster: 'true'
+        # db_proxy_policy: 'all-master-shards'
+        # db_shards_placement: 'sparse'
+        db_redis_port: 12000
+        db_evict_policy: 'disabled'
+        db_persistence: "{{ re_db_persistence | default('aof') }}"
+        db_aof_policy: 'appendfsync-every-sec'
     - re_run_install: True
     - re_run_uninstall: False
     - re_run_createdatabase: False
-    - re_run_rladmin: False
-    - re_run_bootstrap: False
+    - re_run_rladmin: True
+    - re_run_bootstrap: True
   
   roles:
     - ansible-redis-enterprise
@@ -39,6 +60,7 @@
       create: yes 
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
   - name: Run sudo mv /etc/resolv.conf /etc/resolv.conf.orig
     become: yes
@@ -47,6 +69,7 @@
       executable: /bin/bash
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
   - name:  sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
     become: yes
@@ -55,6 +78,7 @@
       executable: /bin/bash
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
   - name: sudo service systemd-resolved restart
     become: yes
@@ -63,18 +87,21 @@
       executable: /bin/bash
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
   - name: Wait for /var/lib/dpkg/lock
     become: yes
     shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
   - name: Wait for /var/lib/dpkg/lock-frontend
     become: yes
     shell:  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 5; done;
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True
 
 
   - name: Remove apt lock file
@@ -84,3 +111,4 @@
       path: "/var/lib/dpkg/lock"
     when:
       - ansible_distribution == 'Ubuntu'
+      - re_run_install == True

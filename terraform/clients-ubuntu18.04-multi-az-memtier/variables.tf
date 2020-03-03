@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-crdb-rof-multi-az"
+  default     = "clients-ubuntu18.04-multi-az"
 }
 
 variable "region" {
@@ -37,7 +37,7 @@ variable "re_cluster_name" {
 
 variable "root_volume_size" {
   description = "EC2 instance volume_size"
-  default     = "512"
+  default     = "128"
 }
 
 variable "root_volume_type" {
@@ -47,7 +47,7 @@ variable "root_volume_type" {
 
 variable "root_volume_iops" {
   description = "EC2 instance volume_iops"
-  default     = "1536"
+  default     = "384"
 }
 
 variable "root_volume_encrypted" {

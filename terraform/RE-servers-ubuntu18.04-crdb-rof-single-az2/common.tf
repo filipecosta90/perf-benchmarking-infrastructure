@@ -19,7 +19,7 @@ data "terraform_remote_state" "shared_resources" {
 terraform {
   backend "s3" {
     bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-cdrb-rof-multi-az.tfstate"
+    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu18.04-cdrb-rof-multi-az2.tfstate"
     region = "us-east-1"
   }
 }

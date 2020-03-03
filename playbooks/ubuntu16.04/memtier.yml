@@ -5,26 +5,19 @@
   become: yes
   become_user: root
   become_method: sudo
-
  
   vars:
-    installdir: /usr/share/
+    installdir: /usr/bin/
 
   tasks:
-  - name: yum install
-    yum: name={{item}} state=latest
-    with_items:
-      - autoconf 
-      - automake
-      - gcc
-      - gcc-c++
-      - pcre-devel
-      - libevent-devel
+  - name: install 
+    command: apt-get install build-essential autoconf automake libpcre3-dev libevent-dev pkg-config zlib1g-dev libssl-dev -y
 
   - name: 'clone Memtier repository'
     git:
-      repo: 'https://github.com/RedisLabs/memtier_benchmark'
+      repo: 'https://github.com/filipecosta90/memtier_benchmark'
       dest: '{{installdir}}/memtier_benchmark'
+      version: 'hdr.hist'
       force: 'yes'
 
   - name: autoreconf
@@ -38,6 +31,28 @@
 
   - name: install 
     command: make install chdir={{installdir}}/memtier_benchmark/
+  
+  pre_tasks:
+
+  - name: Wait for /var/lib/dpkg/lock
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done;
+
+  - name: Wait for /var/lib/dpkg/lock-frontend
+    become: yes
+    shell:  while sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do sleep 5; done;
+
+  - name: Remove apt lock file
+    become: yes
+    file:
+      state: absent
+      path: "/var/lib/dpkg/lock"
+
+  - name: Remove apt lock frontend file
+    become: yes
+    file:
+      state: absent
+      path: "/var/lib/dpkg/lock-frontend"
 
 
     

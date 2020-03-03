@@ -1,5 +1,5 @@
 
-resource "aws_instance" "az1_master_instance" {
+resource "aws_instance" "az1_memtier_instance" {
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
   subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
@@ -19,14 +19,13 @@ resource "aws_instance" "az1_master_instance" {
     delete_on_termination = true
   }
 
-
   volume_tags = {
-    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-master"
+    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-memtier"
     RedisModule = "${var.redis_module}"
   }
 
   tags = {
-    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[0]}-master"
+    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[0]}-memtier"
     RedisModule = "${var.redis_module}"
   }
 
@@ -43,36 +42,10 @@ resource "aws_instance" "az1_master_instance" {
     }
   }
 
-  ################################################################################
-  # Redis Enterprise related
-  ################################################################################
-
-  ###############################################
-  # Create inventory file #
-  ###############################################
+  ############################
+  # Install memtier_bnchmark #
+  ############################
   provisioner "local-exec" {
-
-    command = "echo $l1 >> ${self.public_ip}.inv && echo $l2 >> ${self.public_ip}.inv && echo $l3 >> ${self.public_ip}.inv && echo $l4 >> ${self.public_ip}.inv"
-
-    environment = {
-      l1 = "[re_master]"
-      l2 = "${self.public_ip}"
-      l3 = "[re_slave]"
-      l4 = "${aws_instance.az1_replica_instance.public_ip}"
-    }
-  }
-
-  ##############
-  # Install RE #
-  ##############
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/2VM-1-master-1-replica-multi-az-az1-master.yml --extra-vars \"cluster_name=${var.re_cluster_name}-${data.aws_availability_zones.available.names[0]}\" -i ${self.public_ip}.inv"
-  }
-
-  ###############################################
-  # Remove any inventory file #
-  ###############################################
-  provisioner "local-exec" {
-    command = "rm ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/${var.os}/memtier.yml -i ${self.public_ip},"
   }
 }

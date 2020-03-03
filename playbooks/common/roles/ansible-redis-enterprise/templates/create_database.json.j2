@@ -1,26 +1,28 @@
 {
-	"name": "{{ item.db_name }}",
-	"authentication_redis_pass": "{{ item.db_password }}",
-	"replication": {{ item.db_replication }},
-	"sharding": {{ item.db_sharding }},
-	"shards_count": {{ item.db_shards_count }},
-	"version": "{{ item.db_version }}",
-	"memory_size": {{ item.db_memory_size }},
-	{% if re_flash_enabled %}
-    "bigstore_ram_size": {{ item.bigstore_ram_size }},
-  	{% endif %}
-	"type": "{{ item.db_type }}",
-	"oss_cluster": {{ item.db_oss_cluster }},
-	"proxy_policy": "{{ item.db_proxy_policy }}",
-	"shards_placement": "{{ item.db_shards_placement }}",
-	"port": {{ item.db_redis_port }},
-	"data_persistence": "{{ item.db_persistence }}",
-	"aof_policy": "{{ item.db_aof_policy }}",
-	"shard_key_regex": [
-		{
-			"regex": ".*\\{(?<tag>.*)\\}.*"
-			},
- 		{
-			"regex": "(?<tag>.*)"
-		}]
+   
+		"name": "{{ item.db_name }}",
+		"authentication_redis_pass": "{{ item.db_password }}",
+		"replication": {{ item.db_replication }},
+		"sharding": {{ item.db_sharding }},
+		"shards_count": {{ item.db_shards_count }},
+		"version": "{{ item.db_version }}",
+		"memory_size": {{ item.db_memory_size }},
+		{% if re_flash_enabled %}
+		"bigstore_ram_size": {{ item.bigstore_ram_size }},
+		{% endif %}
+		"type": "{{ item.db_type }}",
+		"oss_cluster": {{ item.db_oss_cluster }},
+		"proxy_policy": "{{ item.db_proxy_policy }}",
+		"shards_placement": "{{ item.db_shards_placement }}",
+		"port": {{ item.db_redis_port }},
+		"data_persistence": "{{ item.db_persistence }}",
+		"aof_policy": "{{ item.db_aof_policy }}",
+		"shard_key_regex": [
+			{
+				"regex": ".*\\{(?<tag>.*)\\}.*"
+				},
+			{
+				"regex": "(?<tag>.*)"
+			}]
+	
 }

@@ -2,7 +2,7 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-crdb-rof-multi-az"
+  default     = "perf-cto-RE-servers-ubuntu18.04-crdb-rof-multi-az"
 }
 
 variable "region" {

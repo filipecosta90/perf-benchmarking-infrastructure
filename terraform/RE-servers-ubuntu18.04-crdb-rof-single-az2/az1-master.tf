@@ -1,15 +1,15 @@
 
-resource "aws_instance" "az1_master_instance" {
+resource "aws_instance" "az2_master_instance" {
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
-  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
+  subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_us_east_2b_public_id
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
 
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
-  placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
-  availability_zone    = "${data.aws_availability_zones.available.names[0]}"
+  placement_group      = "${data.terraform_remote_state.shared_resources.outputs.placement_group_name_us_east_2b}"
+  availability_zone    = "${data.aws_availability_zones.available.names[1]}"
 
   root_block_device {
     volume_size           = "${var.root_volume_size}"
@@ -19,14 +19,21 @@ resource "aws_instance" "az1_master_instance" {
     delete_on_termination = true
   }
 
+  ebs_block_device {
+    device_name           = "/dev/sdg"
+    volume_size           = "${var.ebs_volume_size}"
+    volume_type           = "${var.ebs_volume_type}"
+    delete_on_termination = true
+    encrypted             = "${var.ebs_volume_encrypted}"
+  }
 
   volume_tags = {
-    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-master"
+    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[1]}-master"
     RedisModule = "${var.redis_module}"
   }
 
   tags = {
-    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[0]}-master"
+    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[1]}-master"
     RedisModule = "${var.redis_module}"
   }
 
@@ -58,7 +65,7 @@ resource "aws_instance" "az1_master_instance" {
       l1 = "[re_master]"
       l2 = "${self.public_ip}"
       l3 = "[re_slave]"
-      l4 = "${aws_instance.az1_replica_instance.public_ip}"
+      l4 = "${aws_instance.az2_replica_instance.public_ip}"
     }
   }
 
@@ -66,13 +73,13 @@ resource "aws_instance" "az1_master_instance" {
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/2VM-1-master-1-replica-multi-az-az1-master.yml --extra-vars \"cluster_name=${var.re_cluster_name}-${data.aws_availability_zones.available.names[0]}\" -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/2VM-1-master-1-replica-multi-az-az1-master.yml --extra-vars \"re_cluster_name=${var.re_cluster_name}-${data.aws_availability_zones.available.names[1]} re_proxy_max_threads=16 re_db_shards_count='true' re_db_type='big_redis' re_db_shards_count=16 re_proxy_threads=16\" -i ${self.public_ip}.inv"
   }
 
   ###############################################
   # Remove any inventory file #
   ###############################################
   provisioner "local-exec" {
-    command = "rm ${self.public_ip}.inv"
+    command = "rm *.inv"
   }
 }
