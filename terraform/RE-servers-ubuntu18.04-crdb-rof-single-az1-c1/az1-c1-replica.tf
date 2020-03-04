@@ -1,5 +1,5 @@
 
-resource "aws_instance" "az1_replica_instance" {
+resource "aws_instance" "az1_c1_replica_instance" {
   ami                    = "${var.instance_ami}"
   instance_type          = "${var.instance_type}"
   subnet_id              = data.terraform_remote_state.shared_resources.outputs.subnet_public_id
@@ -19,13 +19,9 @@ resource "aws_instance" "az1_replica_instance" {
     delete_on_termination = true
   }
 
-  volume_tags = {
-    Name        = "ebs_block_device-${var.setup_name}-${data.aws_availability_zones.available.names[0]}-replica"
-    RedisModule = "${var.redis_module}"
-  }
 
   tags = {
-    Name        = "${var.setup_name}-${data.aws_availability_zones.available.names[0]}-replica"
+    Name        = "${var.setup_name}-replica"
     RedisModule = "${var.redis_module}"
   }
 
