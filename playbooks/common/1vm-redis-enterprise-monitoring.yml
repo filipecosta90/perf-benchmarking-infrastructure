@@ -12,12 +12,12 @@
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
     - re_domain_name: 'local'
-    - re_cluster_name: "{{ cluster_name | default('cluster-2vm-cdrb-rof-multi-az-az1') }}"
+    - re_cluster_name: "perf-cto-monitoring"
     - re_version: '5.4.14'
     - re_version_build: '19'
-    - re_flash_enabled: True
-    - re_proxy_max_threads: "{{ re_proxy_max_threads | default(10) }}"
-    - re_proxy_threads: "{{ re_proxy_threads | default(10) }}"
+    - re_flash_enabled: False
+    - re_proxy_max_threads: 4
+    - re_proxy_threads: 4
     - re_databases:
       - db_name: 'perf-db'
         db_password: ''

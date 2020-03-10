@@ -41,7 +41,7 @@ resource "aws_instance" "perf_cto_server" {
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
 
-  cpu_threads_per_core = "${var.instance_cpu_threads_per_core}"
+  cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
   root_block_device {
@@ -146,5 +146,36 @@ resource "aws_instance" "perf_cto_server" {
   ##########################
   provisioner "local-exec" {
     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/redis-balancer.yml -i ${self.public_ip},"
+  }
+
+  ################################################################################
+  # Redis Enterprise related
+  ################################################################################
+
+  ###############################################
+  # Create inventory file #
+  ###############################################
+  provisioner "local-exec" {
+
+    command = "echo $l1 >> ${self.public_ip}.inv && echo $l2 >> ${self.public_ip}.inv"
+
+    environment = {
+      l1 = "[re_master]"
+      l2 = "${self.public_ip}"
+    }
+  }
+
+  ##############
+  # Install RE #
+  ##############
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/re_flash5.4.14-19-only-install.yml  -i ${self.public_ip}.inv"
+  }
+
+  ###############################################
+  # Remove any inventory file #
+  ###############################################
+  provisioner "local-exec" {
+    command = "rm *.inv"
   }
 }

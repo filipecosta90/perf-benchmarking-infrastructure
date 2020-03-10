@@ -7,6 +7,7 @@
   become_method: sudo
   gather_facts: True
   vars:
+    - ansible_python_interpreter: /usr/bin/python3
     - re_username: 'performance@redislabs.com'
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"

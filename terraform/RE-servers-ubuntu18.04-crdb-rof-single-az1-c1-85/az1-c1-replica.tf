@@ -10,6 +10,7 @@ resource "aws_instance" "az1_c1_replica_instance" {
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
   availability_zone    = "${data.aws_availability_zones.available.names[0]}"
+  private_ip             = "10.3.0.11"
 
   root_block_device {
     volume_size           = "${var.root_volume_size}"
@@ -21,6 +22,11 @@ resource "aws_instance" "az1_c1_replica_instance" {
 
 
   tags = {
+    Name        = "${var.setup_name}-replica"
+    RedisModule = "${var.redis_module}"
+  }
+
+  volume_tags = {
     Name        = "${var.setup_name}-replica"
     RedisModule = "${var.redis_module}"
   }

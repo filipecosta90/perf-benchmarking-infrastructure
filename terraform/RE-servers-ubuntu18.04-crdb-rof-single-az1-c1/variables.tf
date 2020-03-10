@@ -19,9 +19,10 @@ variable "server_instance_count" {
   default = "1"
 }
 
+
 variable "instance_ami" {
-  description = "AMI for aws EC2 instance - perf-cto-base-bench-servers-ubuntu18.04-redis-RE"
-  default     = "ami-0895662c1bd511fdb"
+  description = "AMI for aws EC2 instance - perf-cto-base-bench-servers-RE-5.4.14-19"
+  default     = "ami-0a9aa29381da85ced"
 }
 
 variable "instance_device_name" {

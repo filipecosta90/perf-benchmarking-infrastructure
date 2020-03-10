@@ -30,6 +30,17 @@ output "perf_cto_eip_public_ip" {
   value = "${aws_eip.perf_cto_eip.public_ip}"
 }
 
+output "perf_cto_monitoring_redistimeseries_cluster_ip" {
+  value = "${aws_eip.perf_cto_monitoring_redistimeseries_cluster_ip.public_ip}"
+}
+
+
+output "perf_cto_monitoring_redistimeseries_cluster_id" {
+  value = "${aws_eip.perf_cto_monitoring_redistimeseries_cluster_ip.id}"
+}
+
+
+
 output "subnet_us_east_2a_public_id" {
   value = "${aws_subnet.subnet_public.id}"
 }

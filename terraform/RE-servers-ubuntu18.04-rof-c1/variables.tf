@@ -7,7 +7,7 @@ variable "setup_name" {
 
 
 variable "re_cluster_name" {
- description = "re_cluster_name"
+  description = "re_cluster_name"
   default     = "rof-cluster-1"
 }
 

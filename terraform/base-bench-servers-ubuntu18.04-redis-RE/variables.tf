@@ -86,21 +86,17 @@ variable "instance_root_block_device_encrypted" {
   default     = "false"
 }
 
-# Model	c5.24xlarge	
-# Processor	Xeon Platinum 8000
-# (Skylake-SP)	Xeon Platinum 8000
-# vCPU	96
-# Memory (GiB) 196
-# Instance Storage (GiB)	EBS-Only	
-# Network Bandwidth (Gbps) 100
+
+# Model	i3.8xlarge	
+
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "r5.24xlarge"
+  default     = "i3.8xlarge"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 48
+  default     = 16
 }
 
 variable "instance_cpu_threads_per_core" {
@@ -113,7 +109,6 @@ variable "instance_cpu_threads_per_core_hyperthreading" {
   description = "CPU threads per core when hyperthreading is enabled for aws EC2 instance"
   default     = 2
 }
-
 
 variable "instance_network_interface_plus_count" {
   description = "number of additional network interfaces to add to aws EC2 instance"

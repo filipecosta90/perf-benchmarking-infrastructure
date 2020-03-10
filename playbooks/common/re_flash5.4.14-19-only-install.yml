@@ -7,7 +7,6 @@
   become_method: sudo
   gather_facts: True
   vars:
-    - ansible_python_interpreter: /usr/bin/python3
     - re_username: 'performance@redislabs.com'
     - re_password: 'performance'
     - re_license: "{{ lookup('env','RE_LICENSE') }}"
@@ -39,11 +38,11 @@
         db_evict_policy: 'disabled'
         db_persistence: "{{ re_db_persistence | default('aof') }}"
         db_aof_policy: 'appendfsync-every-sec'
-    - re_run_install: False
+    - re_run_install: True
     - re_run_uninstall: False
     - re_run_createdatabase: False
-    - re_run_rladmin: True
-    - re_run_bootstrap: True
+    - re_run_rladmin: False
+    - re_run_bootstrap: False
   
   roles:
     - ansible-redis-enterprise

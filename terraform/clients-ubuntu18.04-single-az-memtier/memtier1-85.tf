@@ -6,6 +6,7 @@ resource "aws_instance" "memtier_1_85" {
   vpc_security_group_ids = ["${data.terraform_remote_state.shared_resources.outputs.performance_cto_sg_id}"]
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
+  private_ip             = "10.3.0.5"
 
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core_hyperthreading}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"

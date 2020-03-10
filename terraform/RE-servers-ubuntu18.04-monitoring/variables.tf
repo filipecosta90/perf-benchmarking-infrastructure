@@ -2,13 +2,13 @@
 
 variable "setup_name" {
   description = "setup name"
-  default     = "perf-cto-RE-servers-ubuntu18.04-crdb-rof-cluster-3"
+  default     = "perf-cto-monitoring-servers-ubuntu18.04-redistimeseries"
 }
 
 
 variable "re_cluster_name" {
  description = "re_cluster_name"
-  default     = "cdrb-rof-cluster-3"
+  default     = "perf-cto-monitoring-servers"
 }
 
 variable "region" {
@@ -19,28 +19,20 @@ variable "server_instance_count" {
   default = "1"
 }
 
+
 variable "instance_ami" {
   description = "AMI for aws EC2 instance - perf-cto-base-bench-servers-RE-5.4.14-19"
   default     = "ami-0a9aa29381da85ced"
 }
-
 
 variable "instance_device_name" {
   description = "EC2 instance device name"
   default     = "/dev/sda1"
 }
 
-variable "redis_module" {
-  description = "redis_module"
-  default     = "ROF"
-}
-
-
-
-
 variable "root_volume_size" {
   description = "EC2 instance volume_size"
-  default     = "2048"
+  default     = "256"
 }
 
 variable "root_volume_type" {
@@ -50,7 +42,7 @@ variable "root_volume_type" {
 
 variable "root_volume_iops" {
   description = "EC2 instance volume_iops"
-  default     = "6184"
+  default     = "768"
 }
 
 variable "root_volume_encrypted" {
@@ -80,16 +72,30 @@ variable "ebs_volume_encrypted" {
 }
 
 
-# Model	i3.8xlarge	
-
 variable "instance_type" {
   description = "type for aws EC2 instance"
-  default     = "i3.8xlarge"
+  #general purpose dont need a big thing
+  default     = "r5.xlarge"
+}
+
+variable "redis_module" {
+ description = "redis_module"
+  default     = "perf-cto-common"
+}
+
+variable "instance_volume_size" {
+    description = "EC2 instance volume_size"
+  default = "1024"
+}
+
+variable "instance_volume_iops" {
+    description = "EC2 instance volume_iops"
+  default = "1000"
 }
 
 variable "instance_cpu_core_count" {
   description = "CPU core count for aws EC2 instance"
-  default     = 16
+  default     = 2
 }
 
 variable "instance_cpu_threads_per_core" {

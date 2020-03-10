@@ -19,7 +19,11 @@ resource "aws_instance" "az1_c1_replica_instance" {
     delete_on_termination = true
   }
 
-
+  volume_tags = {
+    Name        = "${var.setup_name}-replica"
+    RedisModule = "${var.redis_module}"
+  }
+  
   tags = {
     Name        = "${var.setup_name}-replica"
     RedisModule = "${var.redis_module}"

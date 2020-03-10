@@ -1,24 +1,3 @@
-#providers
-provider "aws" {
-  region = "${var.region}"
-}
-
-data "terraform_remote_state" "shared_resources" {
-  backend = "s3"
-  config = {
-    bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/shared_resources.tfstate"
-    region = "us-east-1"
-  }
-}
-
-terraform {
-  backend "s3" {
-    bucket = "performance-cto-group"
-    key    = "benchmarks/infrastructure/perf-cto-RE-servers-ubuntu18.04-redisearch-10.tfstate"
-    region = "us-east-1"
-  }
-}
 
 resource "aws_instance" "perf_cto_server" {
   count                  = "${var.server_instance_count}"
@@ -29,6 +8,8 @@ resource "aws_instance" "perf_cto_server" {
   key_name               = "${var.key_name}"
   cpu_core_count         = "${var.instance_cpu_core_count}"
 
+  private_ip = "10.3.0.100"
+  
   cpu_threads_per_core = "${var.instance_cpu_threads_per_core}"
   placement_group      = "${data.terraform_remote_state.shared_resources.outputs.perf_cto_pg_name}"
 
@@ -85,7 +66,7 @@ resource "aws_instance" "perf_cto_server" {
   # Install RE #
   ##############
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/1VM-redis-enterprise-redisearch.yml --extra-vars \"re_cluster_name=${var.re_cluster_name} re_proxy_max_threads=10 db_shards_count=10 re_proxy_threads=10\" -i ${self.public_ip}.inv"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ${var.ssh_user} --private-key ${var.private_key} ../../playbooks/common/1vm-redis-enterprise-bootstrap.yml -i ${self.public_ip}.inv"
   }
 
   ###############################################
